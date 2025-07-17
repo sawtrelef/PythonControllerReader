@@ -173,6 +173,7 @@ class Stick():
 
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x+self.hormod, self.y+self.vertmod))
+        pygame.draw.line(WINDOW,(0,255,0),(self.x+13, self.y+13),(self.x+self.hormod+13, self.y+self.vertmod+13), 2)
 
 lstick = Stick(1,0,7,147, 185)
 rstick = Stick(3,2, 8, 249, 185)
