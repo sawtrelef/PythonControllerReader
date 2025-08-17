@@ -190,8 +190,6 @@ class PlayStation5Controller():
         self.timecount = 0
         self.actioncount = 0
 
-        self.actionperminute = 0
-
         for button in self.buttonlist:
             button.UpdateSelf = UpdateSelf
 
@@ -205,10 +203,10 @@ class PlayStation5Controller():
         for item in self.axislist:
             item.UpdateSelf(self.ID)
         self.timecount = self.timecount+1
-        self.actionperminute = self.actioncount/(self.timecount/1800)
+
 
     def getcount(self):
-        return int(self.actionperminute)
+        return int(self.actioncount)
 
     def draw(self, WINDOW):
         for item in self.buttonlist:

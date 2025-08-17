@@ -18,11 +18,15 @@ background = pygame.image.load("Background.png")
 
 class APMCounter():
     value = 0
+    timepassed = 0
+    actionperminute = 0
     def __init__(self,target):
         self.ValueTarget = target
 
     def update(self):
         self.value = self.ValueTarget.getcount()
+        self.timepassed = self.timepassed + 1
+        self.actionperminute = int(self.value / (self.timepassed / 1800))
 
     def draw(self, WINDOW):
         text = font.render('APM : ' + str(self.value), True, (149, 75, 220))
