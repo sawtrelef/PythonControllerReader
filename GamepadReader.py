@@ -7,12 +7,12 @@ pygame.init()
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-font = pygame.font.Font('Zou.ttf', 24)
+font = pygame.font.Font('Zou.ttf', 32)
 
 pygame.display.set_caption('Controller Input Visualizer')
 display = pygame.display.set_mode((400,250))
 clock = pygame.time.Clock()
-font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
+#font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
 background = pygame.image.load("Background.png")
 
 
@@ -30,7 +30,7 @@ class APMCounter():
 
     def draw(self, WINDOW):
         text = font.render('APM : ' + str(self.actionperminute), True, (149, 75, 220))
-        WINDOW.blit(text, (180, 215))
+        WINDOW.blit(text, (155, 215))
 
 
 controller = PlayStation5Controller(0)
