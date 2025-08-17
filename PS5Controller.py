@@ -3,7 +3,7 @@ from pygame import joystick, image, transform, draw
 joystick.init()
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 
-class FaceButton():
+class Button():
     off = image.load("unpressed.png")
     on = image.load("pressed.png")
     def __init__(self, buttonnum, x, y):
@@ -12,103 +12,67 @@ class FaceButton():
         self.buttonnum = buttonnum
         self.state = 0
         self.image = self.off
-    def UpdateSelf(self, ID):
-        self.state = joysticks[ID].get_button(self.buttonnum)
-        if self.state == 0 :
-            self.image = self.off
-        else:
-            self.image = self.on
-
-    def draw(self, WINDOW):
-        WINDOW.blit(self.image, (self.x, self.y))
-
-xbutton = FaceButton(0,302,111)
-obutton = FaceButton(1, 322, 91)
-sqbutton = FaceButton(2, 282, 91)
-tbutton = FaceButton(3, 302, 71)
-
-class DPadButton():
-    off = image.load("arrowunpressed.png")
-    on = image.load("arrowpressed.png")
-
-    def __init__(self, buttonnum, x, y):
-        self.x = x
-        self.y = y
-        self.buttonnum = buttonnum
-        self.state = 0
-        self.image = self.off
 
     def UpdateSelf(self, ID):
         self.state = joysticks[ID].get_button(self.buttonnum)
         if self.state == 0:
             self.image = self.off
+            return False
         else:
-            self.image = self.on
+            if self.image != self.on:
+                self.image = self.on
+                return True
+            return False
 
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x, self.y))
-upbutton = DPadButton(11,81, 71)
-downbutton = DPadButton(12,81, 111)
+
+xbutton = Button(0,302,111)
+obutton = Button(1, 322, 91)
+sqbutton = Button(2, 282, 91)
+tbutton = Button(3, 302, 71)
+
+upbutton = Button(11,81, 71)
+upbutton.off = image.load("arrowunpressed.png")
+upbutton.on = image.load("arrowpressed.png")
+downbutton = Button(12,81, 111)
+downbutton.off = image.load("arrowunpressed.png")
+downbutton.on = image.load("arrowpressed.png")
 downbutton.off = transform.rotate(downbutton.off,180)
 downbutton.on = transform.rotate(downbutton.on,180)
-leftbutton = DPadButton(13,61, 91)
+leftbutton = Button(13,61, 91)
+leftbutton.off = image.load("arrowunpressed.png")
+leftbutton.on = image.load("arrowpressed.png")
 leftbutton.off = transform.rotate(downbutton.off,270)
 leftbutton.on = transform.rotate(downbutton.on,270)
-rightbutton = DPadButton(14,101, 91)
+rightbutton = Button(14,101, 91)
+rightbutton.off = image.load("arrowunpressed.png")
+rightbutton.on = image.load("arrowpressed.png")
 rightbutton.off = transform.rotate(downbutton.off,90)
 rightbutton.on = transform.rotate(downbutton.on,90)
 
-class BumperButton():
-    off = image.load("bumperunpressed.png")
-    on = image.load("bumperpressed.png")
+lbump = Button(9,60, 5)
+lbump.off = image.load("bumperunpressed.png")
+lbump.on = image.load("bumperpressed.png")
+rbump = Button(10,243, 5)
+rbump.off = image.load("bumperunpressed.png")
+rbump.on = image.load("bumperpressed.png")
+mbump = Button(15, 153, 71)
+mbump.off = image.load("bumperunpressed.png")
+mbump.on = image.load("bumperpressed.png")
 
-    def __init__(self, buttonnum, x, y):
-        self.x = x
-        self.y = y
-        self.buttonnum = buttonnum
-        self.state = 0
-        self.image = self.off
-
-    def UpdateSelf(self, ID):
-        self.state = joysticks[ID].get_button(self.buttonnum)
-        if self.state == 0:
-            self.image = self.off
-        else:
-            self.image = self.on
-
-    def draw(self, WINDOW):
-        WINDOW.blit(self.image, (self.x, self.y))
-
-lbump = BumperButton(9,60, 5)
-rbump = BumperButton(10,243, 5)
-mbump = BumperButton(15, 153, 71)
-
-class ExtraButton():
-    off = image.load("unpressedoption.png")
-    on = image.load("pressedoption.png")
-    def __init__(self, buttonnum, x, y):
-            self.x = x
-            self.y = y
-            self.buttonnum = buttonnum
-            self.state = 0
-            self.image = self.off
-
-    def UpdateSelf(self, ID):
-            self.state = joysticks[ID].get_button(self.buttonnum)
-            if self.state == 0:
-                self.image = self.off
-            else:
-                self.image = self.on
-
-    def draw(self, WINDOW):
-            WINDOW.blit(self.image, (self.x, self.y))
-
-sharebutton = ExtraButton(4, 131, 71)
-pausebutton = ExtraButton(6, 256, 71)
-micbutton = ExtraButton(16, 195, 141)
+sharebutton = Button(4, 131, 71)
+sharebutton.off = image.load("unpressedoption.png")
+sharebutton.on = image.load("pressedoption.png")
+pausebutton = Button(6, 256, 71)
+pausebutton.off = image.load("unpressedoption.png")
+pausebutton.on = image.load("pressedoption.png")
+micbutton = Button(16, 195, 141)
+micbutton.off = image.load("unpressedoption.png")
+micbutton.on = image.load("pressedoption.png")
 micbutton.off = transform.rotate(micbutton.off,90)
 micbutton.on = transform.rotate(micbutton.on, 90)
-psbutton = ExtraButton(5, 195, 122)
+psbutton = Button(5, 195, 122)
 psbutton.on = image.load("playstationpressed.png")
 psbutton.off = image.load("playstationunpressed.png")
 
@@ -149,15 +113,24 @@ class Stick():
         self.hormod = 0
         self.buttonnum = buttonnum
         self.image = self.stickunpressed
+        self.state = False
     def UpdateSelf(self, ID):
-        if joysticks[ID].get_button(self.buttonnum) == 1:
-            self.image = self.stickpressed
-        else:
+        self.state = joysticks[ID].get_button(self.buttonnum)
+        action = False
+        if self.state == 0:
             self.image = self.stickunpressed
+            action =  False
+        else:
+            if self.image != self.stickpressed:
+                self.image = self.stickpressed
+                action = True
+            else:
+                action = False
         self.vertstate = joysticks[ID].get_axis(self.vertaxis)
         self.vertmod = 13*self.vertstate
         self.horstate = joysticks[ID].get_axis(self.horaxis)
         self.hormod = 13*self.horstate
+        return action
 
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x+self.hormod, self.y+self.vertmod))
@@ -166,19 +139,6 @@ class Stick():
 lstick = Stick(1,0,7,147, 185)
 rstick = Stick(3,2, 8, 249, 185)
 
-
-def UpdateSelf(self, ID):
-        self.state = joysticks[ID].get_button(self.buttonnum)
-        if self.state == 0:
-            self.image = self.off
-            return False
-        else:
-            if self.image != self.on:
-                self.image = self.on
-                return True
-            return False
-
-
 class PlayStation5Controller():
     joystick.init()
     joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
@@ -186,24 +146,19 @@ class PlayStation5Controller():
     axislist = [l2Trigger, r2Trigger, lstick, rstick]
     def __init__(self, ID):
         self.ID = ID
-
         self.timecount = 0
         self.actioncount = 0
 
-        for button in self.buttonlist:
-            button.UpdateSelf = UpdateSelf
-
-
-
     def update(self):
         for item in self.buttonlist:
-            check = item.UpdateSelf(item, self.ID)
+            check = item.UpdateSelf( self.ID)
             if check:
                 self.actioncount = self.actioncount +1
         for item in self.axislist:
-            item.UpdateSelf(self.ID)
+            check = item.UpdateSelf(self.ID)
+            if check:
+                self.actioncount = self.actioncount+1
         self.timecount = self.timecount+1
-
 
     def getcount(self):
         return int(self.actioncount)

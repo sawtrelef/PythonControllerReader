@@ -29,7 +29,7 @@ class APMCounter():
         self.actionperminute = int(self.value / (self.timepassed / 1800))
 
     def draw(self, WINDOW):
-        text = font.render('APM : ' + str(self.value), True, (149, 75, 220))
+        text = font.render('APM : ' + str(self.actionperminute), True, (149, 75, 220))
         WINDOW.blit(text, (180, 215))
 
 
