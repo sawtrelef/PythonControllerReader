@@ -1,7 +1,10 @@
 from pygame import joystick, image, transform, draw
+import os
 
+os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
 joystick.init()
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
+
 
 class Button():
     off = image.load("unpressed.png")
@@ -140,8 +143,6 @@ lstick = Stick(1,0,7,147, 185)
 rstick = Stick(3,2, 8, 249, 185)
 
 class PlayStation5Controller():
-    joystick.init()
-    joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
     buttonlist = [xbutton,obutton,sqbutton,tbutton,upbutton,downbutton,leftbutton,rightbutton,lbump,rbump,mbump,sharebutton,pausebutton,micbutton,sharebutton,psbutton]
     axislist = [l2Trigger, r2Trigger, lstick, rstick]
     def __init__(self, ID):
