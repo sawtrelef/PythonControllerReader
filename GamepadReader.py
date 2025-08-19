@@ -1,11 +1,7 @@
 import pygame
-import os
 from PS5Controller import PlayStation5Controller
 
-
 pygame.init()
-pygame.joystick.init()
-joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
 font = pygame.font.Font('Zou.ttf', 32)
 

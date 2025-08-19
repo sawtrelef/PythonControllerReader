@@ -1,4 +1,4 @@
-from pygame import joystick, image
+from pygame import joystick, image, transform
 import os
 os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
 joystick.init()
@@ -31,6 +31,7 @@ class Button():
 class TriggerAxis():
     bar = image.load("triggerbar.png")
     paddle = image.load("paddlebar.png")
+    flipped = False
     def __init__(self, axis, x, y):
             self.x = x
             self.y = y
@@ -43,8 +44,17 @@ class TriggerAxis():
             self.ymod = abs(-1 - self.axisstate)/2
 
     def draw(self, WINDOW):
-        WINDOW.blit(self.bar,(self.x,self.y))
-        WINDOW.blit(self.paddle,(self.x-4,(self.y +(100 *self.ymod))))
+        if self.flipped == False:
+            WINDOW.blit(self.bar,(self.x,self.y))
+            WINDOW.blit(self.paddle,(self.x-4,(self.y +(100 *self.ymod))))
+        else:
+            WINDOW.blit(self.bar,(self.x,self.y))
+            WINDOW.blit(self.paddle,(self.x + (100*self.ymod), self.y-4))
+
+    def flip(self):
+        self.bar = transform.rotate(self.bar,90)
+        self.paddle = transform.rotate(self.paddle, 90)
+        self.flipped = not self.flipped
 
 class Stick():
     stickunpressed = image.load("stickunpressed.png")
