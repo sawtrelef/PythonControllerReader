@@ -1,7 +1,7 @@
 import pygame
 import os
 from PS5Controller import PlayStation5Controller
-os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
+
 
 pygame.init()
 pygame.joystick.init()
