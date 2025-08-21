@@ -5,14 +5,18 @@ joystick.init()
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 
 class Button():
-    off = image.load("unpressed.png")
-    on = image.load("pressed.png")
+    offimagename = "unpressed.png"
+    onimagename = "pressed.png"
+    off = image.load(offimagename)
+    on = image.load(onimagename)
+    rotate = 0
     def __init__(self, buttonnum, x, y):
         self.x = x
         self.y = y
         self.buttonnum = buttonnum
         self.state = 0
         self.image = self.off
+
 
     def UpdateSelf(self, ID):
         self.state = joysticks[ID].get_button(self.buttonnum)
@@ -27,10 +31,17 @@ class Button():
 
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x, self.y))
+    def load(self):
+        self.off = image.load(self.offimagename)
+        self.on = image.load(self.onimagename)
+        self.on = transform.rotate(self.on, self.rotate)
+        self.off = transform.rotate(self.off, self.rotate)
 
 class TriggerAxis():
-    bar = image.load("triggerbar.png")
-    paddle = image.load("paddlebar.png")
+    barimage = "triggerbar.png"
+    paddleimage = "paddlebar.png"
+    bar = image.load(barimage)
+    paddle = image.load(paddleimage)
     flipped = False
     def __init__(self, axis, x, y):
             self.x = x
@@ -56,9 +67,15 @@ class TriggerAxis():
         self.paddle = transform.rotate(self.paddle, 90)
         self.flipped = not self.flipped
 
+    def load(self):
+        bar = image.load(self.barimage)
+        paddle = image.load(self.paddleimage)
+
 class Stick():
-    stickunpressed = image.load("stickunpressed.png")
-    stickpressed = image.load("stickpressed.png")
+    pressed = "stickpressed.png"
+    unpressed = "stickunpressed.png"
+    stickunpressed = image.load(unpressed)
+    stickpressed = image.load(pressed)
 
     def __init__(self, vertaxis, horaxis, buttonnum, x, y):
         self.x = x
@@ -92,3 +109,7 @@ class Stick():
 
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x+self.hormod, self.y+self.vertmod))
+
+    def load(self):
+        self.stickpressed = image.load(self.pressed)
+        self.stickunpressed = image.load(self.unpressed)

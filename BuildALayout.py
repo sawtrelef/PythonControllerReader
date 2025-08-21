@@ -3,6 +3,7 @@ from joystickstuff import Button, Stick, TriggerAxis
 from GenericController import GenericController
 
 
+
 pygame.init()
 
 font = pygame.font.Font('Zou.ttf', 48)
@@ -27,6 +28,84 @@ joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_coun
 
 collidables = []
 
+class Button():
+    def __init__(self, x, y, image):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def Draw(self, WINDOW, rect=False, transform=False):
+        WINDOW.blit(self.image, self.rect)
+
+    # MAKE MORE GENERIC, WILL NEVER NEED A CLICKABLE BUTTON FOR DRAWING CARD, THIS WAS WRITTEN FOR TESTING PURPOSES ONLY
+    def doclicked(self):
+        return
+
+    def setImage(self, image):
+        self.image = image
+
+def save():
+    file = open('layout.txt', 'w')
+    if ActiveStick:
+        buttonlist = ActiveStick.buttonlist
+        length = len(buttonlist)
+        print("Number of Independent buttons: " + str(length) + '\n')
+        file.write("Number of Independent buttons: " + str(length) + '\n')
+        for button in buttonlist:
+            #(buttonnum, x, y, offimage, onimage, rotation)
+            number = str(button.buttonnum)
+            xposition = str(button.x-150)
+            yposition = str(button.y-350)
+            onimage = str(button.onimagename)
+            offimage = str(button.offimagename)
+            rotation = str(button.rotate)
+            buttontext = "({},{},{},{},{},{})\n".format(number,xposition,yposition, offimage,onimage,rotation)
+            print(buttontext)
+            file.write(buttontext)
+        axislist = ActiveStick.axislist
+        length = len(axislist)
+        print("Number of Independent Axis: " + str(length) + '\n')
+        file.write("Number of Independent Axis: " + str(length) + '\n')
+        for axis in axislist:
+            #(axisnumber, xpos, ypos, barimage, paddleimage, flippedbool)
+            number = str(axis.axis)
+            xpos = str(axis.x-150)
+            ypos = str(axis.y-350)
+            barim = str(axis.barimage)
+            paddleim = str(axis.paddleimage)
+            flip = str(axis.flipped)
+            axistext = "({},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip)
+            print(axistext)
+            file.write(axistext)
+        sticklist = ActiveStick.sticklist
+        length = len(sticklist)
+        print("Number of Sticks: " + str(length) + '\n')
+        file.write("Number of Sticks: " + str(length) + '\n')
+        for stick in ActiveStick.sticklist:
+            #(vertaxis,horizontalaxis,buttonnumber, xpos, ypos, pressed, unpressed)
+            vertaxis = str(stick.vertaxis)
+            horizontal = str(stick.horaxis)
+            button = str(stick.buttonnum)
+            xpos = str(stick.x-150)
+            ypos = str(stick.y-350)
+            pressed = str(stick.pressed)
+            unpressed = str(stick.unpressed)
+            sticktext = "({},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed)
+            print(sticktext)
+            file.write(sticktext)
+    else:
+        print("nothing to save")
+        ##buttons
+        #triggers
+        #sticks
+    file.close()
+
+saveimage = pygame.image.load('savebutton.png')
+SaveButton = Button(400,200,saveimage)
+SaveButton.doclicked = save
+collidables.append(SaveButton)
+
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
     mousey = mousepos[1]
@@ -36,7 +115,7 @@ def CollisionCheck(mousepos, collisionbox):
             return True
     return False
 
-selected = False
+selectedbutton = False
 
 while not done:
     for event in pygame.event.get():
@@ -70,45 +149,39 @@ while not done:
             position = pygame.mouse.get_pos()
             for item in collidables:
                 if CollisionCheck(position, item.rect):
-                    selected = item
-                    print(str(selected))
-                else:
-                    print("You missed me: " + str(item))
-                    print(str(item.rect))
-                    print(str(position))
+                    collided = item
+                    if collided.__class__ == Button:
+                        collided.doclicked()
+                    else:
+                        selectedbutton = collided
+                        print(str(selectedbutton))
+
+
 
         if event.type == pygame.MOUSEBUTTONUP:
-            selected = False
+            selectedbutton = False
             position = pygame.mouse.get_pos()
-            print("Mouse x: " + str(position[0]) + " Mouse y: " + str(position[1]))
-            print("I dropped it")
-
 
     if done:
         break
 
-    if selected:
+    if selectedbutton:
         position = pygame.mouse.get_pos()
-        selected.x = position[0]
-        selected.rect.x = position[0]
-        selected.y = position[1]
-        selected.rect.y = position[1]
+        selectedbutton.x = position[0]
+        selectedbutton.rect.x = position[0]
+        selectedbutton.y = position[1]
+        selectedbutton.rect.y = position[1]
 
     pygame.draw.rect(display,(255,255,255),rect)
     display.blit(text, (20, 20))
     pygame.draw.rect(display,(0,0,0), workrect)
-
+    SaveButton.Draw(display)
     if ActiveStick:
         font = pygame.font.Font('Zou.ttf', 48)
         active = font.render(str(name).upper(),True,(40,200,60))
         display.blit(active,(20,60))
         ActiveStick.update()
         ActiveStick.draw(display)
-
-
-
-
-
 
     pygame.display.update()
     clock.tick(30)
