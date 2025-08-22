@@ -1,7 +1,7 @@
 from joystickstuff import Button, TriggerAxis, Stick
 from pygame import joystick, draw
 
-class GenericController():
+class LoadGenericController():
     buttonlist = []
     axislist = []
     sticklist = []
@@ -48,3 +48,41 @@ class GenericController():
             if self.StickLines == True:
                 draw.line(WINDOW, (0, 255, 0), (item.x + 13, item.y + 13), (item.x + item.hormod + 13, item.y + item.vertmod + 13), 2)
 
+
+class GenericController():
+    buttonlist = []
+    axislist = []
+    sticklist = []
+    StickLines = True
+    ID = False
+    actioncount = 0
+    timecount = 0
+    def __init__(self, ID = 0):
+        offset = 0
+        self.ID = ID
+
+    def update(self):
+        for item in self.buttonlist:
+            check = item.UpdateSelf( self.ID)
+            if check:
+                self.actioncount = self.actioncount +1
+        for item in self.axislist:
+            check = item.UpdateSelf(self.ID)
+            if check:
+                self.actioncount = self.actioncount+1
+        for item in self.sticklist:
+            check = item.UpdateSelf(self.ID)
+            if check:
+                self.actioncount = self.actioncount+1
+
+        self.timecount = self.timecount+1
+
+    def draw(self, WINDOW):
+        for item in self.buttonlist:
+            item.draw(WINDOW)
+        for item in self.axislist:
+            item.draw(WINDOW)
+        for item in self.sticklist:
+            item.draw(WINDOW)
+            if self.StickLines == True:
+                draw.line(WINDOW, (0, 255, 0), (item.x + 13, item.y + 13), (item.x + item.hormod + 13, item.y + item.vertmod + 13), 2)

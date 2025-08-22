@@ -77,7 +77,7 @@ class Stick():
     stickunpressed = image.load(unpressed)
     stickpressed = image.load(pressed)
 
-    def __init__(self, vertaxis, horaxis, buttonnum, x, y):
+    def __init__(self, vertaxis, horaxis, x, y, buttonnum = -1):
         self.x = x
         self.y = y
         self.vertaxis = vertaxis
@@ -90,7 +90,10 @@ class Stick():
         self.image = self.stickunpressed
         self.state = False
     def UpdateSelf(self, ID):
-        self.state = joysticks[ID].get_button(self.buttonnum)
+        if(self.buttonnum > 0):
+            self.state = joysticks[ID].get_button(self.buttonnum)
+        else:
+            self.state == 0
         action = False
         if self.state == 0:
             self.image = self.stickunpressed

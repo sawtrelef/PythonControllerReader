@@ -1,7 +1,7 @@
 Number of Independent buttons: 17
-(0,293,36,unpressed.png,pressed.png,0)
-(1,347,89,unpressed.png,pressed.png,0)
-(2,269,116,unpressed.png,pressed.png,0)
+(0,316,65,unpressed.png,pressed.png,0)
+(1,-110,-230,unpressed.png,pressed.png,0)
+(2,-110,-210,unpressed.png,pressed.png,0)
 (3,-110,-190,unpressed.png,pressed.png,0)
 (4,-110,-170,unpressed.png,pressed.png,0)
 (5,-110,-150,unpressed.png,pressed.png,0)
@@ -17,10 +17,10 @@ Number of Independent buttons: 17
 (15,-110,50,unpressed.png,pressed.png,0)
 (16,-110,70,unpressed.png,pressed.png,0)
 Number of Independent Axis: 6
-(0,-110,120,triggerbar.png,paddlebar.png,True)
-(1,-110,140,triggerbar.png,paddlebar.png,True)
-(2,-110,160,triggerbar.png,paddlebar.png,True)
-(3,-110,180,triggerbar.png,paddlebar.png,True)
-(4,-110,200,triggerbar.png,paddlebar.png,True)
+(0,27,16,triggerbar.png,paddlebar.png,True)
+(1,27,45,triggerbar.png,paddlebar.png,True)
+(2,32,71,triggerbar.png,paddlebar.png,True)
+(3,28,95,triggerbar.png,paddlebar.png,True)
+(4,39,123,triggerbar.png,paddlebar.png,True)
 (5,-110,220,triggerbar.png,paddlebar.png,True)
 Number of Sticks: 0
