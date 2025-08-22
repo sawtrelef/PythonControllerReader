@@ -21,6 +21,7 @@ class LoadGenericController():
 
         for item in self.axislist:
             item.flip()
+            item.horizontal = True
 
     def update(self):
         for item in self.buttonlist:

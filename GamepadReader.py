@@ -4,12 +4,15 @@ from PS5Controller import PlayStation5Controller
 pygame.init()
 
 font = pygame.font.Font('Zou.ttf', 32)
-
+background = pygame.image.load("Background.png")
+rect = background.get_rect()
+x = int(rect.bottomright[0])
+y = int(rect.bottomright[1])
 pygame.display.set_caption('Controller Input Visualizer')
-display = pygame.display.set_mode((400,250))
+display = pygame.display.set_mode((x,y))
 clock = pygame.time.Clock()
 #font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
-background = pygame.image.load("Background.png")
+
 
 
 class APMCounter():
@@ -22,11 +25,11 @@ class APMCounter():
     def update(self):
         self.value = self.ValueTarget.getcount()
         self.timepassed = self.timepassed + 1
-        self.actionperminute = int(self.value / (self.timepassed / 1800))
+        self.actionperminute = int(self.value / (self.timepassed / 3600))
 
     def draw(self, WINDOW):
         text = font.render('APM : ' + str(self.actionperminute), True, (149, 75, 220))
-        WINDOW.blit(text, (155, 215))
+        WINDOW.blit(text, (int(x/2)-45, y-35))
 
 
 controller = PlayStation5Controller(0)
@@ -39,6 +42,7 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
     if done:
+
         break
 
     controller.update()
@@ -49,7 +53,7 @@ while not done:
 
 
     pygame.display.update()
-    clock.tick(30)
+    clock.tick(60)
 
 pygame.quit()
 quit()

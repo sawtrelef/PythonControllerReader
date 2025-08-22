@@ -5,8 +5,8 @@ joystick.init()
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 
 class Button():
-    offimagename = "unpressed.png"
-    onimagename = "pressed.png"
+    offimagename = "./buttons/unpressed.png"
+    onimagename = "./buttons/pressed.png"
     off = image.load(offimagename)
     on = image.load(onimagename)
     rotate = 0
@@ -19,7 +19,10 @@ class Button():
 
 
     def UpdateSelf(self, ID):
-        self.state = joysticks[ID].get_button(self.buttonnum)
+        if len(joysticks) > 0:
+            self.state = joysticks[ID].get_button(self.buttonnum)
+        else:
+            self.state = 0
         if self.state == 0:
             self.image = self.off
             return False
@@ -36,13 +39,16 @@ class Button():
         self.on = image.load(self.onimagename)
         self.on = transform.rotate(self.on, self.rotate)
         self.off = transform.rotate(self.off, self.rotate)
+        self.rect = self.off.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 class TriggerAxis():
-    barimage = "triggerbar.png"
-    paddleimage = "paddlebar.png"
+    barimage = "./Axis/triggerbar.png"
+    paddleimage = "./Axis/paddlebar.png"
     bar = image.load(barimage)
     paddle = image.load(paddleimage)
-    flipped = False
+    horizontal = False
     def __init__(self, axis, x, y):
             self.x = x
             self.y = y
@@ -51,29 +57,34 @@ class TriggerAxis():
             self.axisstate = 0
 
     def UpdateSelf(self, ID):
+        if len(joysticks) > 0:
             self.axisstate = joysticks[ID].get_axis(self.axis)
-            self.ymod = abs(-1 - self.axisstate)/2
+        else:
+            self.axisstate = 0
+        self.ymod = abs(-1 - self.axisstate)/2
 
     def draw(self, WINDOW):
-        if self.flipped == False:
-            WINDOW.blit(self.bar,(self.x,self.y))
-            WINDOW.blit(self.paddle,(self.x-4,(self.y +(100 *self.ymod))))
+        if self.horizontal:
+            WINDOW.blit(self.bar, (self.x, self.y))
+            WINDOW.blit(self.paddle, (self.x + (100 * self.ymod), self.y - 4))
         else:
-            WINDOW.blit(self.bar,(self.x,self.y))
-            WINDOW.blit(self.paddle,(self.x + (100*self.ymod), self.y-4))
+            WINDOW.blit(self.bar, (self.x, self.y))
+            WINDOW.blit(self.paddle, (self.x - 4, (self.y + (100 * self.ymod))))
+
 
     def flip(self):
         self.bar = transform.rotate(self.bar,90)
         self.paddle = transform.rotate(self.paddle, 90)
-        self.flipped = not self.flipped
+
 
     def load(self):
-        bar = image.load(self.barimage)
-        paddle = image.load(self.paddleimage)
+        self.bar = image.load(self.barimage)
+        self.paddle = image.load(self.paddleimage)
+
 
 class Stick():
-    pressed = "stickpressed.png"
-    unpressed = "stickunpressed.png"
+    pressed = "./sticks/stickpressed.png"
+    unpressed = "./sticks/stickunpressed.png"
     stickunpressed = image.load(unpressed)
     stickpressed = image.load(pressed)
 
@@ -91,7 +102,10 @@ class Stick():
         self.state = False
     def UpdateSelf(self, ID):
         if(self.buttonnum > 0):
-            self.state = joysticks[ID].get_button(self.buttonnum)
+            if len(joysticks) > 0:
+                self.state = joysticks[ID].get_button(self.buttonnum)
+            else:
+                self.state = 0
         else:
             self.state == 0
         action = False
@@ -104,9 +118,15 @@ class Stick():
                 action = True
             else:
                 action = False
-        self.vertstate = joysticks[ID].get_axis(self.vertaxis)
+        if len(joysticks) > 0:
+            self.vertstate = joysticks[ID].get_axis(self.vertaxis)
+        else:
+            self.vertstate = 0
         self.vertmod = 13*self.vertstate
-        self.horstate = joysticks[ID].get_axis(self.horaxis)
+        if len(joysticks) > 0:
+            self.horstate = joysticks[ID].get_axis(self.horaxis)
+        else:
+            self.horstate = 0
         self.hormod = 13*self.horstate
         return action
 

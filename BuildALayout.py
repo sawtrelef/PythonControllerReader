@@ -1,4 +1,5 @@
 import pygame
+from os import listdir
 from joystickstuff import Button, Stick, TriggerAxis
 from GenericController import LoadGenericController, GenericController
 
@@ -9,10 +10,15 @@ pygame.init()
 font = pygame.font.Font('Zou.ttf', 48)
 
 pygame.display.set_caption('Build Your Controller Layout')
-
+workrectimage = pygame.image.load('Background.png')
+workrect = workrectimage.get_rect()
+width = workrect.bottomright[0]
+height = workrect.bottomright[1]
 display = pygame.display.set_mode((600,700))
 rect = pygame.rect.Rect(0,0,600,700)
-workrect = pygame.rect.Rect(150,350, 400,250)
+
+x = 150
+y = 350
 clock = pygame.time.Clock()
 
 done = False
@@ -55,8 +61,8 @@ def save():
         for button in buttonlist:
             #(buttonnum, x, y, offimage, onimage, rotation)
             number = str(button.buttonnum)
-            xposition = str(button.x-150)
-            yposition = str(button.y-350)
+            xposition = str(button.x-x)
+            yposition = str(button.y-y)
             onimage = str(button.onimagename)
             offimage = str(button.offimagename)
             rotation = str(button.rotate)
@@ -74,7 +80,7 @@ def save():
             ypos = str(axis.y-350)
             barim = str(axis.barimage)
             paddleim = str(axis.paddleimage)
-            flip = str(axis.flipped)
+            flip = str(axis.horizontal)
             axistext = "({},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip)
             print(axistext)
             file.write(axistext)
@@ -100,9 +106,6 @@ def save():
         #triggers
         #sticks
     file.close()
-
-def swapcontrollers(first, second):
-    first = second
 
 def load(filename = ""):
     if filename == "":
@@ -134,12 +137,12 @@ def load(filename = ""):
             onimage = str(values[4])
             rotation = int(values[5])
             addbutton = Button(buttonnum,xpos,ypos)
-            addbutton.offimage = offimage
-            addbutton.onimage = onimage
+            addbutton.offimagename = offimage
+            addbutton.onimagename = onimage
             addbutton.rotate = rotation
             addbutton.load()
             buttonlist.append(addbutton)
-            collidables.append(addbutton)
+
     axislist = []
     for i in range(bookmarks[1],bookmarks[2]):
         if lines[i][0] == '(':
@@ -155,11 +158,13 @@ def load(filename = ""):
             addtrigger = TriggerAxis(axisnum, xpos, ypos)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
-            if flipbool:
-                addtrigger.flip()
             addtrigger.load()
+            if flipbool:
+                addtrigger.horizontal = flipbool
+                addtrigger.flip()
+            addtrigger.horizontal = flipbool
             axislist.append(addtrigger)
-            collidables.append(addtrigger)
+
     sticklist = []
     for i in range(bookmarks[2], length):
         if lines[i][0] == '(':
@@ -179,13 +184,13 @@ def load(filename = ""):
             addstick.unpressed = offimage
             addstick.load()
             sticklist.append(addstick)
-            collidables.append(addstick)
 
     Controller = False
     if ActiveStick:
-        ActiveStick.buttonlist = buttonlist
-        ActiveStick.axislist = axislist
-        ActiveStick.sticklist = sticklist
+        Controller = GenericController(ActiveStick.ID)
+        Controller.buttonlist = buttonlist
+        Controller.axislist = axislist
+        Controller.sticklist = sticklist
     else:
         Controller = GenericController(0)
         Controller.buttonlist = buttonlist
@@ -198,13 +203,62 @@ def load(filename = ""):
 
 saveimage = pygame.image.load('savebutton.png')
 loadimage = pygame.image.load('loadbutton.png')
-SaveButton = button(400,200,saveimage)
-LoadButton = button(260, 200,loadimage)
+SaveButton = button(370,610,saveimage)
+LoadButton = button(210, 610,loadimage)
 SaveButton.doclicked = save
 LoadButton.doclicked = load
 
 collidables.append(SaveButton)
 collidables.append(LoadButton)
+
+
+def changeButtonImage():
+    morph = widgetCell.holding
+    if morph.__class__ == Button:
+        unpressed = morph.offimagename
+        num = widgetCell.changelist.index(unpressed)
+        if num + 1 < len(widgetCell.changelist):
+            num = num+1
+        else:
+            num = 0
+        unpressed = widgetCell.changelist[num]
+        prunedex = unpressed.index("unpressed")
+        pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
+        morph.offimagename = unpressed
+        morph.onimagename = pressed
+        morph.load()
+
+    if morph.__class__ == Stick:
+        unpressed = morph.offimagename
+        num = widgetCell.changelist.index(unpressed)
+        if num + 1 < len(widgetCell.changelist):
+            num = num+1
+        else:
+            num = 0
+        unpressed = widgetCell.changelist[num]
+        prunedex = unpressed.index("unpressed")
+        pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
+        morph.pressed = unpressed
+        morph.unpressed = pressed
+        morph.load()
+
+def rotateButtonImage():
+
+    morph = widgetCell.holding
+    morph.rotate = morph.rotate+90
+    morph.load()
+
+
+
+ChangeImage = pygame.image.load('changebutton.png')
+changebutton = button(x+20, y-50, ChangeImage)
+changebutton.doclicked = changeButtonImage
+RotateImage = pygame.image.load('rotatebutton.png')
+rotatebutton = button(x+40+135, y-50, RotateImage)
+rotatebutton.doclicked = rotateButtonImage
+ButtonModList = []
+ButtonModList.append(changebutton)
+ButtonModList.append(rotatebutton)
 
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
@@ -215,7 +269,66 @@ def CollisionCheck(mousepos, collisionbox):
             return True
     return False
 
-selectedbutton = False
+class HoldingCell():
+    def __init__(self):
+        self.holding = False
+        self.dragging = False
+        self.buttonlist = []
+        self.changelist = []
+
+    def holdItem(self,item):
+        self.holding = item
+        if item:
+            self.dragging = True
+
+    def stopdrag(self):
+        self.dragging = False
+
+    def Drag(self, position):
+        self.holding.x = position[0]
+        self.holding.rect.x = position[0]
+        self.holding.y = position[1]
+        self.holding.rect.y = position[1]
+
+    def update(self):
+        for item in self.buttonlist:
+            for thing in collidables:
+                if item == thing:
+                    collidables.remove(item)
+        self.buttonlist = []
+        if self.holding.__class__ == Button:
+            self.changelist = []
+            directory = './buttons/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory+file)
+            self.buttonlist = ButtonModList
+
+        for item in self.buttonlist:
+            collidables.append(item)
+
+
+    def draw(self, WINDOW):
+        for item in self.buttonlist:
+            item.draw(WINDOW)
+        return
+
+widgetCell = HoldingCell()
+
+def stickcollidables():
+    for item in ActiveStick.buttonlist:
+        rectangle = item.off.get_rect()
+        item.rect = rectangle
+        item.rect.x = item.x
+        item.rect.y = item.y
+        collidables.append(item)
+    for item in ActiveStick.axislist:
+        rectangle1 = item.bar.get_rect()
+        item.rect = rectangle1
+        item.rect.x = item.x
+        item.rect.y = item.y
+        collidables.append(item)
 
 while not done:
     for event in pygame.event.get():
@@ -226,18 +339,7 @@ while not done:
             if ActiveStick == False:
                 ActiveStick = LoadGenericController(joysticks[event.instance_id],event.instance_id)
                 name = joysticks[event.instance_id].get_name()
-                for item in ActiveStick.buttonlist:
-                    rectangle = item.off.get_rect()
-                    item.rect = rectangle
-                    item.rect.x = item.x
-                    item.rect.y = item.y
-                    collidables.append(item)
-                for item in ActiveStick.axislist:
-                    rectangle1 = item.bar.get_rect()
-                    item.rect = rectangle1
-                    item.rect.x = item.x
-                    item.rect.y = item.y
-                    collidables.append(item)
+                stickcollidables()
 
         if event.type == pygame.JOYDEVICEADDED:
             # This event will be generated when the program starts for every
@@ -247,37 +349,47 @@ while not done:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
+            touch = False
             for item in collidables:
-                if CollisionCheck(position, item.rect):
+                touch = CollisionCheck(position, item.rect)
+                if touch:
                     collided = item
                     if collided.__class__ == button:
                         check = collided.doclicked()
                         if check.__class__ == GenericController:
                             ActiveStick = check
-                            name = joysticks[check.ID].get_name()
+                            if len(joysticks) > 0:
+                                name = joysticks[check.ID].get_name()
+                            else:
+                                name = 'unknown'
+                            stickcollidables()
                     else:
                         selectedbutton = collided
                         print(str(selectedbutton))
+                        widgetCell.holdItem(selectedbutton)
+                        widgetCell.update()
+                    break
+            if touch == False:
+                widgetCell.holdItem(False)
+                widgetCell.update()
 
 
 
         if event.type == pygame.MOUSEBUTTONUP:
-            selectedbutton = False
-            position = pygame.mouse.get_pos()
+            widgetCell.stopdrag()
+
 
     if done:
         break
 
-    if selectedbutton:
+    if widgetCell.dragging == True:
         position = pygame.mouse.get_pos()
-        selectedbutton.x = position[0]
-        selectedbutton.rect.x = position[0]
-        selectedbutton.y = position[1]
-        selectedbutton.rect.y = position[1]
+        widgetCell.Drag(position)
+
 
     pygame.draw.rect(display,(255,255,255),rect)
     display.blit(text, (20, 20))
-    pygame.draw.rect(display,(0,0,0), workrect)
+    display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
     if ActiveStick:
@@ -287,8 +399,11 @@ while not done:
         ActiveStick.update()
         ActiveStick.draw(display)
 
+    if widgetCell.holding:
+        widgetCell.draw(display)
+
     pygame.display.update()
-    clock.tick(30)
+    clock.tick(60)
 
 pygame.quit()
 quit()
