@@ -179,7 +179,7 @@ def load(filename = ""):
             buttonnumber = int(values[4])
             onimage = values[5]
             offimage = values[6]
-            addstick = Stick(vertaxis,horizontalaxis,xpos,ypos,buttonnumber)
+            addstick = Stick(xpos,ypos,vertaxis,horizontalaxis,buttonnumber)
             addstick.pressed = onimage
             addstick.unpressed = offimage
             addstick.load()
@@ -203,6 +203,8 @@ def load(filename = ""):
 
 saveimage = pygame.image.load('savebutton.png')
 loadimage = pygame.image.load('loadbutton.png')
+makestickimage = pygame.image.load('makestickbutton.png')
+MakeStickButton = button(290,655, makestickimage)
 SaveButton = button(370,610,saveimage)
 LoadButton = button(210, 610,loadimage)
 SaveButton.doclicked = save
@@ -210,6 +212,7 @@ LoadButton.doclicked = load
 
 collidables.append(SaveButton)
 collidables.append(LoadButton)
+collidables.append(MakeStickButton)
 
 
 def changeButtonImage():
@@ -373,8 +376,6 @@ while not done:
                 widgetCell.holdItem(False)
                 widgetCell.update()
 
-
-
         if event.type == pygame.MOUSEBUTTONUP:
             widgetCell.stopdrag()
 
@@ -392,6 +393,7 @@ while not done:
     display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
+    MakeStickButton.draw(display)
     if ActiveStick:
         font = pygame.font.Font('Zou.ttf', 48)
         active = font.render(str(name).upper(),True,(40,200,60))

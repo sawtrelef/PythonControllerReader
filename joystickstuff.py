@@ -20,7 +20,9 @@ class Button():
 
     def UpdateSelf(self, ID):
         if len(joysticks) > 0:
-            self.state = joysticks[ID].get_button(self.buttonnum)
+            length = joysticks[ID].get_numbuttons()
+            if self.buttonnum < length:
+                self.state = joysticks[ID].get_button(self.buttonnum)
         else:
             self.state = 0
         if self.state == 0:
@@ -58,7 +60,9 @@ class TriggerAxis():
 
     def UpdateSelf(self, ID):
         if len(joysticks) > 0:
-            self.axisstate = joysticks[ID].get_axis(self.axis)
+            length = joysticks[ID].get_numaxes()
+            if self.axis < length:
+                self.axisstate = joysticks[ID].get_axis(self.axis)
         else:
             self.axisstate = 0
         self.ymod = abs(-1 - self.axisstate)/2
@@ -88,7 +92,7 @@ class Stick():
     stickunpressed = image.load(unpressed)
     stickpressed = image.load(pressed)
 
-    def __init__(self, vertaxis, horaxis, x, y, buttonnum = -1):
+    def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1):
         self.x = x
         self.y = y
         self.vertaxis = vertaxis
@@ -103,7 +107,9 @@ class Stick():
     def UpdateSelf(self, ID):
         if(self.buttonnum > 0):
             if len(joysticks) > 0:
-                self.state = joysticks[ID].get_button(self.buttonnum)
+                length = joysticks[ID].get_numbuttons()
+                if self.buttonnum < length:
+                    self.state = joysticks[ID].get_button(self.buttonnum)
             else:
                 self.state = 0
         else:

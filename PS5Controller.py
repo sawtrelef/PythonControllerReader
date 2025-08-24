@@ -52,8 +52,8 @@ psbutton.offimagename = "./buttons/playstationunpressed.png"
 l2Trigger = TriggerAxis(4, 18, 5)
 r2Trigger = TriggerAxis(5, 378, 5)
 
-lstick = Stick(1,0,147, 185, 7)
-rstick = Stick(3,2, 249, 185, 8)
+lstick = Stick(147, 185,1,0, 7)
+rstick = Stick( 249, 185,3,2, 8)
 
 class PlayStation5Controller():
     buttonlist = [xbutton,obutton,sqbutton,tbutton,upbutton,downbutton,leftbutton,rightbutton,lbump,rbump,mbump,sharebutton,pausebutton,micbutton,sharebutton,psbutton]
