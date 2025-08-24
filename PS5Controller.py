@@ -7,47 +7,47 @@ sqbutton = Button(2, 282, 91)
 tbutton = Button(3, 302, 71)
 
 upbutton = Button(11,81, 71)
-upbutton.offimagename = "./buttons/arrowunpressed.png"
-upbutton.onimagename = "./buttons/arrowpressed.png"
+upbutton.unpressed = "./buttons/arrowunpressed.png"
+upbutton.pressed = "./buttons/arrowpressed.png"
 downbutton = Button(12,81, 111)
-downbutton.offimagename = "./buttons/arrowunpressed.png"
-downbutton.onimagename = "./buttons/arrowpressed.png"
+downbutton.unpressed = "./buttons/arrowunpressed.png"
+downbutton.pressed = "./buttons/arrowpressed.png"
 downbutton.rotate=180
 
 leftbutton = Button(13,61, 91)
-leftbutton.offimagename = "./buttons/arrowunpressed.png"
-leftbutton.onimagename = "./buttons/arrowpressed.png"
+leftbutton.unpressed = "./buttons/arrowunpressed.png"
+leftbutton.pressed = "./buttons/arrowpressed.png"
 leftbutton.rotate = 90
 
 rightbutton = Button(14,101, 91)
-rightbutton.offimagename = "./buttons/arrowunpressed.png"
-rightbutton.onimagename = "./buttons/arrowpressed.png"
+rightbutton.unpressed = "./buttons/arrowunpressed.png"
+rightbutton.pressed = "./buttons/arrowpressed.png"
 rightbutton.rotate = 270
 
 
 lbump = Button(9,60, 5)
-lbump.offimagename = "./buttons/bumperunpressed.png"
-lbump.onimagename = "./buttons/bumperpressed.png"
+lbump.unpressed = "./buttons/bumperunpressed.png"
+lbump.pressed = "./buttons/bumperpressed.png"
 rbump = Button(10,243, 5)
-rbump.offimagename = "./buttons/bumperunpressed.png"
-rbump.onimagename = "./buttons/bumperpressed.png"
+rbump.unpressed = "./buttons/bumperunpressed.png"
+rbump.pressed = "./buttons/bumperpressed.png"
 mbump = Button(15, 153, 71)
-mbump.offimagename = "./buttons/bumperunpressed.png"
-mbump.onimagename = "./buttons/bumperpressed.png"
+mbump.unpressed = "./buttons/bumperunpressed.png"
+mbump.pressed = "./buttons/bumperpressed.png"
 
-sharebutton = Button(4, 131, 71)
-sharebutton.offimagename = "./buttons/unpressedoption.png"
-sharebutton.onimagename = "./buttons/pressedoption.png"
+sharebutton = Button(4, 121, 71)
+sharebutton.unpressed = "./buttons/unpressedoption.png"
+sharebutton.pressed = "./buttons/pressedoption.png"
 pausebutton = Button(6, 256, 71)
-pausebutton.offimagename = "./buttons/unpressedoption.png"
-pausebutton.onimagename = "./buttons/pressedoption.png"
+pausebutton.unpressed = "./buttons/unpressedoption.png"
+pausebutton.pressed = "./buttons/pressedoption.png"
 micbutton = Button(16, 195, 141)
-micbutton.offimagename = "./buttons/unpressedoption.png"
-micbutton.onimagename = "./buttons/pressedoption.png"
+micbutton.unpressed = "./buttons/unpressedoption.png"
+micbutton.pressed = "./buttons/pressedoption.png"
 micbutton.rotate = 90
 psbutton = Button(5, 195, 122)
-psbutton.onimagename = "./buttons/playstationpressed.png"
-psbutton.offimagename = "./buttons/playstationunpressed.png"
+psbutton.pressed = "./buttons/playstationpressed.png"
+psbutton.unpressed = "./buttons/playstationunpressed.png"
 
 l2Trigger = TriggerAxis(4, 18, 5)
 r2Trigger = TriggerAxis(5, 378, 5)
@@ -56,7 +56,7 @@ lstick = Stick(147, 185,1,0, 7)
 rstick = Stick( 249, 185,3,2, 8)
 
 class PlayStation5Controller():
-    buttonlist = [xbutton,obutton,sqbutton,tbutton,upbutton,downbutton,leftbutton,rightbutton,lbump,rbump,mbump,sharebutton,pausebutton,micbutton,sharebutton,psbutton]
+    buttonlist = [xbutton,obutton,sqbutton,tbutton,upbutton,downbutton,leftbutton,rightbutton,lbump,rbump,mbump,sharebutton,pausebutton,micbutton,psbutton]
     axislist = [l2Trigger, r2Trigger]
     sticklist = [lstick, rstick]
     def __init__(self, ID):

@@ -1,4 +1,5 @@
 import pygame
+from PS5Controller import PlayStation5Controller
 from os import listdir
 from joystickstuff import Button, Stick, TriggerAxis
 from GenericController import LoadGenericController, GenericController
@@ -27,10 +28,22 @@ text = font.render(words, True, (200, 74, 220))
 
 
 drawlist = []
-
-ActiveStick = False
-pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+ActiveStick = False
+#ActiveStick = PlayStation5Controller(0)
+#for item in ActiveStick.buttonlist:
+    #item.x = item.x + x
+    #item.y = item.y + y
+#for item in ActiveStick.axislist:
+    #item.x = item.x + x
+    #item.y = item.y + y
+#for item in ActiveStick.sticklist:
+    #item.x = item.x + x
+    #item.y = item.y + y
+#name = joysticks[ActiveStick.ID].get_name()
+#pygame.joystick.init()
+
+
 
 collidables = []
 
@@ -376,6 +389,8 @@ def stickcollidables():
         item.rect.y = item.y
         if item not in collidables:
             collidables.append(item)
+
+#stickcollidables()
 
 while not done:
     for event in pygame.event.get():
