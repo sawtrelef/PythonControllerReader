@@ -20,8 +20,7 @@ class LoadGenericController():
             self.axislist.append(TriggerAxis(i,40, offset + (i*20)))
 
         for item in self.axislist:
-            item.flip()
-            item.horizontal = True
+            item.Rotate()
 
     def update(self):
         for item in self.buttonlist:

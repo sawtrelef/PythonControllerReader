@@ -1,6 +1,6 @@
 Number of Independent buttons: 17
-(0,316,128,./buttons/arrowunpressed.png,./buttons/arrowpressed.png,2970)
-(1,-110,-230,./buttons/unpressed.png,./buttons/pressed.png,0)
+(0,313,112,./buttons/arrowunpressed.png,./buttons/arrowpressed.png,0)
+(1,70,-200,./buttons/bumperunpressed.png,./buttons/bumperpressed.png,90)
 (2,-110,-210,./buttons/unpressed.png,./buttons/pressed.png,0)
 (3,-110,-190,./buttons/unpressed.png,./buttons/pressed.png,0)
 (4,-110,-170,./buttons/unpressed.png,./buttons/pressed.png,0)
@@ -17,10 +17,11 @@ Number of Independent buttons: 17
 (15,-110,50,./buttons/unpressed.png,./buttons/pressed.png,0)
 (16,-110,70,./buttons/unpressed.png,./buttons/pressed.png,0)
 Number of Independent Axis: 6
-(0,-110,120,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
-(1,-110,140,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
+(0,204,-147,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
+(1,221,-201,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
 (2,-110,160,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
 (3,-110,180,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
 (4,-110,200,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
 (5,-110,220,./Axis/triggerbar.png,./Axis/paddlebar.png,True)
-Number of Sticks: 0
+Number of Sticks: 1
+(-1,-1,-1,347,-59,./sticks/stickpressed.png,./sticks/stickunpressed.png)

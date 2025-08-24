@@ -5,10 +5,10 @@ joystick.init()
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 
 class Button():
-    offimagename = "./buttons/unpressed.png"
-    onimagename = "./buttons/pressed.png"
-    off = image.load(offimagename)
-    on = image.load(onimagename)
+    unpressed = "./buttons/unpressed.png"
+    pressed = "./buttons/pressed.png"
+    off = image.load(unpressed)
+    on = image.load(pressed)
     rotate = 0
     def __init__(self, buttonnum, x, y):
         self.x = x
@@ -37,13 +37,16 @@ class Button():
     def draw(self, WINDOW):
         WINDOW.blit(self.image, (self.x, self.y))
     def load(self):
-        self.off = image.load(self.offimagename)
-        self.on = image.load(self.onimagename)
+        self.off = image.load(self.unpressed)
+        self.on = image.load(self.pressed)
         self.on = transform.rotate(self.on, self.rotate)
         self.off = transform.rotate(self.off, self.rotate)
-        self.rect = self.off.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
+    def Rotate(self):
+        if self.rotate < 270:
+            self.rotate = self.rotate+90
+        else:
+            self.rotate = 0
+        self.load()
 
 class TriggerAxis():
     barimage = "./Axis/triggerbar.png"
@@ -75,15 +78,16 @@ class TriggerAxis():
             WINDOW.blit(self.bar, (self.x, self.y))
             WINDOW.blit(self.paddle, (self.x - 4, (self.y + (100 * self.ymod))))
 
-
-    def flip(self):
-        self.bar = transform.rotate(self.bar,90)
-        self.paddle = transform.rotate(self.paddle, 90)
-
-
     def load(self):
         self.bar = image.load(self.barimage)
         self.paddle = image.load(self.paddleimage)
+        if self.horizontal:
+            self.bar = transform.rotate(self.bar, 90)
+            self.paddle = transform.rotate(self.paddle,90)
+
+    def Rotate(self):
+       self.horizontal = not self.horizontal
+       self.load()
 
 
 class Stick():
@@ -91,6 +95,7 @@ class Stick():
     unpressed = "./sticks/stickunpressed.png"
     stickunpressed = image.load(unpressed)
     stickpressed = image.load(pressed)
+    rotate = 0
 
     def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1):
         self.x = x
@@ -125,15 +130,18 @@ class Stick():
             else:
                 action = False
         if len(joysticks) > 0:
-            self.vertstate = joysticks[ID].get_axis(self.vertaxis)
-        else:
-            self.vertstate = 0
-        self.vertmod = 13*self.vertstate
-        if len(joysticks) > 0:
-            self.horstate = joysticks[ID].get_axis(self.horaxis)
-        else:
-            self.horstate = 0
-        self.hormod = 13*self.horstate
+            length = joysticks[ID].get_numaxes()
+            if self.vertaxis < length and self.vertaxis >= 0:
+                self.vertstate = joysticks[ID].get_axis(self.vertaxis)
+            else:
+                self.vertstate = 0
+            self.vertmod = 13*self.vertstate
+
+            if self.horaxis < length and self.horaxis >= 0:
+                self.horstate = joysticks[ID].get_axis(self.horaxis)
+            else:
+                self.horstate = 0
+            self.hormod = 13*self.horstate
         return action
 
     def draw(self, WINDOW):
@@ -142,3 +150,12 @@ class Stick():
     def load(self):
         self.stickpressed = image.load(self.pressed)
         self.stickunpressed = image.load(self.unpressed)
+        self.stickpressed = transform.rotate(self.stickpressed, self.rotate)
+        self.stickunpressed = transform.rotate(self.stickunpressed, self.rotate)
+
+    def Rotate(self):
+        if self.rotate < 270:
+            self.rotate = self.rotate+90
+        else:
+            self.rotate = 0
+        self.load()

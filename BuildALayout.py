@@ -63,8 +63,8 @@ def save():
             number = str(button.buttonnum)
             xposition = str(button.x-x)
             yposition = str(button.y-y)
-            onimage = str(button.onimagename)
-            offimage = str(button.offimagename)
+            onimage = str(button.pressed)
+            offimage = str(button.unpressed)
             rotation = str(button.rotate)
             buttontext = "({},{},{},{},{},{})\n".format(number,xposition,yposition, offimage,onimage,rotation)
             print(buttontext)
@@ -76,8 +76,8 @@ def save():
         for axis in axislist:
             #(axisnumber, xpos, ypos, barimage, paddleimage, flippedbool)
             number = str(axis.axis)
-            xpos = str(axis.x-150)
-            ypos = str(axis.y-350)
+            xpos = str(axis.x-x)
+            ypos = str(axis.y-y)
             barim = str(axis.barimage)
             paddleim = str(axis.paddleimage)
             flip = str(axis.horizontal)
@@ -93,8 +93,8 @@ def save():
             vertaxis = str(stick.vertaxis)
             horizontal = str(stick.horaxis)
             button = str(stick.buttonnum)
-            xpos = str(stick.x-150)
-            ypos = str(stick.y-350)
+            xpos = str(stick.x-x)
+            ypos = str(stick.y-y)
             pressed = str(stick.pressed)
             unpressed = str(stick.unpressed)
             sticktext = "({},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed)
@@ -131,14 +131,14 @@ def load(filename = ""):
             lines[i] = lines[i].removesuffix(')')
             values = lines[i].split(',')
             buttonnum = int(values[0])
-            xpos = int(values[1])+150
-            ypos = int(values[2])+350
+            xpos = int(values[1])+x
+            ypos = int(values[2])+y
             offimage = str(values[3])
             onimage = str(values[4])
             rotation = int(values[5])
             addbutton = Button(buttonnum,xpos,ypos)
-            addbutton.offimagename = offimage
-            addbutton.onimagename = onimage
+            addbutton.unpressed = offimage
+            addbutton.pressed = onimage
             addbutton.rotate = rotation
             addbutton.load()
             buttonlist.append(addbutton)
@@ -150,19 +150,20 @@ def load(filename = ""):
             lines[i] = lines[i].removesuffix(')')
             values = lines[i].split(',')
             axisnum = int(values[0])
-            xpos = int(values[1])+150
-            ypos = int(values[2])+350
+            xpos = int(values[1])+x
+            ypos = int(values[2])+y
             triggerimage = str(values[3])
             paddleimage = str(values[4])
-            flipbool = bool(values[5])
+            flipbool = values[5]
+            if flipbool == 'True':
+                flipbool = True
+            else:
+                flipbool = False
             addtrigger = TriggerAxis(axisnum, xpos, ypos)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
-            addtrigger.load()
-            if flipbool:
-                addtrigger.horizontal = flipbool
-                addtrigger.flip()
             addtrigger.horizontal = flipbool
+            addtrigger.load()
             axislist.append(addtrigger)
 
     sticklist = []
@@ -170,15 +171,18 @@ def load(filename = ""):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
             lines[i] = lines[i].removesuffix(')')
-            # (vertaxis,horizontalaxis,xpos, ypos, buttonnum, pressed, unpressed)
+            ##Stick extraction data format
+            # (vertaxis,horizontalaxis,buttonnum, xpos, ypos, pressed, unpressed)
             values = lines[i].split(',')
             vertaxis = int(values[0])
             horizontalaxis = int(values[1])
-            xpos = int(values[2])+150
-            ypos = int(values[3])+350
-            buttonnumber = int(values[4])
+            xpos = int(values[3])+x
+            ypos = int(values[4])+y
+            buttonnumber = int(values[2])
             onimage = values[5]
             offimage = values[6]
+            #stick creation data format
+            #(xpos,ypos,vertaxis, horizontalaxis, buttonnumber)
             addstick = Stick(xpos,ypos,vertaxis,horizontalaxis,buttonnumber)
             addstick.pressed = onimage
             addstick.unpressed = offimage
@@ -201,6 +205,10 @@ def load(filename = ""):
         return Controller
     return False
 
+def makeStick():
+    emptystick = Stick(425, 655)
+    return emptystick
+
 saveimage = pygame.image.load('savebutton.png')
 loadimage = pygame.image.load('loadbutton.png')
 makestickimage = pygame.image.load('makestickbutton.png')
@@ -209,6 +217,7 @@ SaveButton = button(370,610,saveimage)
 LoadButton = button(210, 610,loadimage)
 SaveButton.doclicked = save
 LoadButton.doclicked = load
+MakeStickButton.doclicked = makeStick
 
 collidables.append(SaveButton)
 collidables.append(LoadButton)
@@ -217,8 +226,8 @@ collidables.append(MakeStickButton)
 
 def changeButtonImage():
     morph = widgetCell.holding
-    if morph.__class__ == Button:
-        unpressed = morph.offimagename
+    if morph.__class__ == Button or morph.__class__ == Stick:
+        unpressed = morph.unpressed
         num = widgetCell.changelist.index(unpressed)
         if num + 1 < len(widgetCell.changelist):
             num = num+1
@@ -227,29 +236,30 @@ def changeButtonImage():
         unpressed = widgetCell.changelist[num]
         prunedex = unpressed.index("unpressed")
         pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
-        morph.offimagename = unpressed
-        morph.onimagename = pressed
+        morph.unpressed = unpressed
+        morph.pressed = pressed
         morph.load()
 
-    if morph.__class__ == Stick:
-        unpressed = morph.offimagename
-        num = widgetCell.changelist.index(unpressed)
-        if num + 1 < len(widgetCell.changelist):
-            num = num+1
-        else:
-            num = 0
-        unpressed = widgetCell.changelist[num]
-        prunedex = unpressed.index("unpressed")
-        pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
-        morph.pressed = unpressed
-        morph.unpressed = pressed
-        morph.load()
+    stickcollidables()
+
+    ###if morph.__class__ == Stick:
+        #unpressed = morph.unpressed
+        #num = widgetCell.changelist.index(unpressed)
+        #if num + 1 < len(widgetCell.changelist):
+            #num = num+1
+        #else:
+            #num = 0
+        #unpressed = widgetCell.changelist[num]
+        #prunedex = unpressed.index("unpressed")
+        #pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
+        #morph.pressed = pressed
+        #morph.unpressed = unpressed
+        #morph.load()###
 
 def rotateButtonImage():
-
     morph = widgetCell.holding
-    morph.rotate = morph.rotate+90
-    morph.load()
+    morph.Rotate()
+    stickcollidables()
 
 
 
@@ -262,6 +272,15 @@ rotatebutton.doclicked = rotateButtonImage
 ButtonModList = []
 ButtonModList.append(changebutton)
 ButtonModList.append(rotatebutton)
+
+StickModList = []
+StickModList.append(changebutton)
+StickModList.append(rotatebutton)
+
+AxisModList = []
+AxisModList.append(rotatebutton)
+
+
 
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
@@ -307,6 +326,22 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory+file)
             self.buttonlist = ButtonModList
+        if self.holding.__class__ == Stick:
+            self.changelist = []
+            directory = './sticks/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory+file)
+            self.buttonlist = StickModList
+        if self.holding.__class__ == TriggerAxis:
+            self.changelist = []
+            directory = './Axis/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory + file)
+            self.buttonlist = AxisModList
 
         for item in self.buttonlist:
             collidables.append(item)
@@ -325,13 +360,22 @@ def stickcollidables():
         item.rect = rectangle
         item.rect.x = item.x
         item.rect.y = item.y
-        collidables.append(item)
+        if item not in collidables:
+            collidables.append(item)
     for item in ActiveStick.axislist:
         rectangle1 = item.bar.get_rect()
         item.rect = rectangle1
         item.rect.x = item.x
         item.rect.y = item.y
-        collidables.append(item)
+        if item not in collidables:
+            collidables.append(item)
+    for item in ActiveStick.sticklist:
+        rectangle2 = item.stickunpressed.get_rect()
+        item.rect = rectangle2
+        item.rect.x = item.x
+        item.rect.y = item.y
+        if item not in collidables:
+            collidables.append(item)
 
 while not done:
     for event in pygame.event.get():
@@ -366,10 +410,18 @@ while not done:
                             else:
                                 name = 'unknown'
                             stickcollidables()
+                        if check.__class__ == Stick:
+                            if ActiveStick:
+                                widgetCell.holdItem(check)
+                                widgetCell.stopdrag()
+                                widgetCell.update()
+
+                                ActiveStick.sticklist.append(check)
+                                stickcollidables()
                     else:
-                        selectedbutton = collided
-                        print(str(selectedbutton))
-                        widgetCell.holdItem(selectedbutton)
+                        selecteditem = collided
+                        print(str(selecteditem))
+                        widgetCell.holdItem(selecteditem)
                         widgetCell.update()
                     break
             if touch == False:
