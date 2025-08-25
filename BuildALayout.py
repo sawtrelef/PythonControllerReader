@@ -12,7 +12,7 @@ pygame.init()
 font = pygame.font.Font('Zou.ttf', 48)
 
 pygame.display.set_caption('Build Your Controller Layout')
-workrectimage = pygame.image.load('Background.png')
+workrectimage = pygame.image.load('assets/Background.png')
 workrect = workrectimage.get_rect()
 width = workrect.bottomright[0]
 height = workrect.bottomright[1]
@@ -211,9 +211,9 @@ def makeStick():
     emptystick = Stick(425, 655)
     return emptystick
 
-saveimage = pygame.image.load('savebutton.png')
-loadimage = pygame.image.load('loadbutton.png')
-makestickimage = pygame.image.load('makestickbutton.png')
+saveimage = pygame.image.load('assets/savebutton.png')
+loadimage = pygame.image.load('assets/loadbutton.png')
+makestickimage = pygame.image.load('assets/makestickbutton.png')
 MakeStickButton = button(290,655, makestickimage)
 SaveButton = button(370,610,saveimage)
 LoadButton = button(210, 610,loadimage)
@@ -263,17 +263,17 @@ def rotateButtonImage():
     morph.Rotate()
     stickcollidables()
 
-ChangeImage = pygame.image.load('changebutton.png')
+ChangeImage = pygame.image.load('assets/changebutton.png')
 changebutton = button(x+20, y-50, ChangeImage)
 changebutton.doclicked = changeButtonImage
-RotateImage = pygame.image.load('rotatebutton.png')
+RotateImage = pygame.image.load('assets/rotatebutton.png')
 rotatebutton = button(x+40+135, y-50, RotateImage)
 rotatebutton.doclicked = rotateButtonImage
 ButtonModList = []
 ButtonModList.append(changebutton)
 ButtonModList.append(rotatebutton)
 
-horizontalaxis = pygame.image.load('horizontalaxisbutton.png')
+horizontalaxis = pygame.image.load('assets/horizontalaxisbutton.png')
 
 changehorizontalbutton = button(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
 def changehorizontalaxis(self):
@@ -291,7 +291,7 @@ def changehorizontalclicked():
     return action
 changehorizontalbutton.doclicked = changehorizontalclicked
 
-vertaxis = pygame.image.load('vertaxisbutton.png')
+vertaxis = pygame.image.load('assets/vertaxisbutton.png')
 
 changevertbutton = button(rotatebutton.rect.x, changehorizontalbutton.rect.y, vertaxis)
 def changevertaxis(self):
@@ -309,7 +309,7 @@ def changevertclicked():
     return action
 changevertbutton.doclicked = changevertclicked
 
-changeButtonImage = pygame.image.load('addbutton.png')
+changeButtonImage = pygame.image.load('assets/addbutton.png')
 
 changeButton = button(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
 def changestickbutton(self):

@@ -6,7 +6,7 @@ from GenericController import GenericController
 pygame.init()
 
 font = pygame.font.Font('Zou.ttf', 32)
-background = pygame.image.load("Background.png")
+background = pygame.image.load("assets/Background.png")
 rect = background.get_rect()
 x = int(rect.bottomright[0])
 y = int(rect.bottomright[1])
