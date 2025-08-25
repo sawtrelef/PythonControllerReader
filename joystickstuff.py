@@ -1,3 +1,4 @@
+import pygame.image
 from pygame import joystick, image, transform
 import os
 os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
@@ -89,7 +90,6 @@ class TriggerAxis():
        self.horizontal = not self.horizontal
        self.load()
 
-
 class Stick():
     pressed = "./sticks/stickpressed.png"
     unpressed = "./sticks/stickunpressed.png"
@@ -110,7 +110,7 @@ class Stick():
         self.image = self.stickunpressed
         self.state = False
     def UpdateSelf(self, ID):
-        if(self.buttonnum > 0):
+        if(self.buttonnum >= 0):
             if len(joysticks) > 0:
                 length = joysticks[ID].get_numbuttons()
                 if self.buttonnum < length:
@@ -168,3 +168,68 @@ class Stick():
 
     def changebutton(self, newbuttonnum):
         self.buttonnum = newbuttonnum
+
+class Hat():
+    background = 'assets/hatbackground.png'
+    pressed = 'buttons/arrowpressed.png'
+    unpressed = 'buttons/unpressed.png'
+    rotate = 0
+    rotatemod = 0
+    backgroundimage = image.load(background)
+    pressedimage = image.load(pressed)
+    unpressedimage= image.load(unpressed)
+    stateimage = unpressedimage
+
+    def __init__(self, hatnum = -1, x = -1, y = -1):
+        self.hatnumber = hatnum
+        # x and y will be the top left coordinate for the background
+        self.x = x
+        self.y = y
+        self.backgroundrect = self.backgroundimage.get_rect()
+        self.staterect = self.stateimage.get_rect()
+        self.state = (0,0)
+
+    def UpdateSelf(self,ID):
+        action = False
+        if (self.hatnumber >= 0):
+            if len(joysticks) > 0:
+                length = joysticks[ID].get_numbuttons()
+                if self.hatnumber < length:
+                    if self.state != joysticks[ID].get_hat(self.hatnumber) and self.state != (0,0):
+                        action = True
+                else:
+                    self.state = (0,0)
+        else:
+            self.state == (0,0)
+
+        self.updateImage()
+        return action
+
+    def updateImage(self):
+
+        self.imagex = self.state[0] * self.staterect[2] + self.backgroundrect[2]/2 - self.staterect[3]/2 + self.x+1
+        self.imagey = -self.state[1] * self.staterect[3] - self.staterect[3]/2 + self.backgroundrect[3]/2 + self.y
+        self.rotatemod = 0
+        if self.state == (0, 0):
+            self.stateimage = self.unpressedimage
+        else:
+            self.stateimage = self.pressedimage
+            if self.state[0] != 0:
+                self.rotatemod = self.rotatemod - (90*self.state[0])
+            if self.state[1] != 0:
+                if self.rotatemod !=0:
+                    self.rotatemod = self.rotatemod - (45*self.state[1]*-self.state[0])
+                elif self.state[1] == -1:
+                    self.rotatemod = 180
+
+
+        self.stateimage = transform.rotate(self.stateimage, self.rotate+self.rotatemod)
+
+    def draw(self,WINDOW):
+        WINDOW.blit(self.backgroundimage, (self.x, self.y))
+        WINDOW.blit(self.stateimage, (self.imagex, self.imagey))
+
+    def load(self):
+        self.backgroundimage = transform.rotate(image.load(self.background), self.rotate)
+        self.updateImage()
+

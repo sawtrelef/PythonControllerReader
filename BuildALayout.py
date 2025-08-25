@@ -2,7 +2,7 @@ import pygame
 from Actions import ModAction, ActionContainer
 from PS5Controller import PlayStation5Controller
 from os import listdir
-from joystickstuff import Button, Stick, TriggerAxis
+from joystickstuff import Button, Stick, TriggerAxis, Hat
 from GenericController import LoadGenericController, GenericController
 
 
@@ -102,6 +102,23 @@ def save():
             sticktext = "({},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed)
             print(sticktext)
             file.write(sticktext)
+        hatlist = ActiveStick.hatlist
+        length = len(hatlist)
+        print("Number of Hats: " + str(length) + '\n')
+        file.write("Number of Hats: " + str(length) + '\n')
+        for hat in ActiveStick.hatlist:
+            # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
+            number = str(hat.hatnumber)
+            xposition = str(hat.x - x)
+            yposition = str(hat.y - y)
+            onimage = str(hat.pressed)
+            offimage = str(hat.unpressed)
+            backgroundimage = str(hat.background)
+            rotation = str(hat.rotate)
+            hattext = '({},{},{},{},{},{},{},)\n'.format(number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
+            print(hattext)
+            file.write(hattext)
+
     else:
         print("nothing to save")
         ##buttons
@@ -169,7 +186,7 @@ def load(filename = ""):
             axislist.append(addtrigger)
 
     sticklist = []
-    for i in range(bookmarks[2], length):
+    for i in range(bookmarks[2], bookmarks[3]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
             lines[i] = lines[i].removesuffix(')')
@@ -190,6 +207,28 @@ def load(filename = ""):
             addstick.unpressed = offimage
             addstick.load()
             sticklist.append(addstick)
+    hatlist = []
+    for i in range(bookmarks[3], length):
+        if lines[i][0] == '(':
+            # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
+            lines[i] = lines[i].removeprefix('(')
+            lines[i] = lines[i].removesuffix(')')
+            values = lines[i].split(',')
+            hatnum = int(values[0])
+            xpos = int(values[1]) + x
+            ypos = int(values[2]) + y
+            rotation = int(values[3])
+            onimage = str(values[4])
+            offimage = str(values[5])
+            backgroundimage = str(values[6])
+
+            addhat = Hat(hatnum, xpos, ypos)
+            addhat.unpressed = offimage
+            addhat.pressed = onimage
+            addhat.background = backgroundimage
+            addhat.rotate = rotation
+            addhat.load()
+            hatlist.append(addhat)
 
     controller = False
     if ActiveStick:
@@ -197,11 +236,13 @@ def load(filename = ""):
         Controller.buttonlist = buttonlist
         Controller.axislist = axislist
         Controller.sticklist = sticklist
+        Controller.hatlist = hatlist
     else:
         Controller = GenericController(0)
         Controller.buttonlist = buttonlist
         Controller.axislist = axislist
         Controller.sticklist = sticklist
+        Controller.hatlist = hatlist
     file.close()
     if Controller:
         return Controller
@@ -429,6 +470,14 @@ def stickcollidables():
     for item in ActiveStick.sticklist:
         rectangle2 = item.stickunpressed.get_rect()
         item.rect = rectangle2
+        item.rect.x = item.x
+        item.rect.y = item.y
+        if item not in collidables:
+            collidables.append(item)
+
+    for item in ActiveStick.hatlist:
+        rectangle3 = item.backgroundimage.get_rect()
+        item.rect = rectangle3
         item.rect.x = item.x
         item.rect.y = item.y
         if item not in collidables:

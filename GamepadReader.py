@@ -1,6 +1,6 @@
 import pygame
 from PS5Controller import PlayStation5Controller
-from joystickstuff import Button, TriggerAxis, Stick
+from joystickstuff import Button, TriggerAxis, Stick, Hat
 from GenericController import GenericController
 
 pygame.init()
@@ -95,7 +95,7 @@ def load(filename = ""):
             axislist.append(addtrigger)
 
     sticklist = []
-    for i in range(bookmarks[2], length):
+    for i in range(bookmarks[2], bookmarks[3]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
             lines[i] = lines[i].removesuffix(')')
@@ -116,17 +116,41 @@ def load(filename = ""):
             addstick.unpressed = offimage
             addstick.load()
             sticklist.append(addstick)
+    hatlist = []
+    for i in range(bookmarks[3], length):
+        if lines[i][0] == '(':
+            # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
+            lines[i] = lines[i].removeprefix('(')
+            lines[i] = lines[i].removesuffix(')')
+            values = lines[i].split(',')
+            hatnum = int(values[0])
+            xpos = int(values[1])
+            ypos = int(values[2])
+            rotation = int(values[3])
+            onimage = str(values[4])
+            offimage = str(values[5])
+            backgroundimage = str(values[6])
+
+            addhat = Hat(hatnum, xpos, ypos)
+            addhat.unpressed = offimage
+            addhat.pressed = onimage
+            addhat.background = backgroundimage
+            addhat.rotate = rotation
+            addhat.load()
+            hatlist.append(addhat)
 
     if controller:
         Controller = GenericController(controller.ID)
         Controller.buttonlist = buttonlist
         Controller.axislist = axislist
         Controller.sticklist = sticklist
+        Controller.hatlist = hatlist
     else:
         Controller = GenericController(0)
         Controller.buttonlist = buttonlist
         Controller.axislist = axislist
         Controller.sticklist = sticklist
+        Controller.hatlist = hatlist
     file.close()
     if Controller:
         return Controller

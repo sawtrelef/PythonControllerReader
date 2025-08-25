@@ -1,10 +1,11 @@
-from joystickstuff import Button, TriggerAxis, Stick
+from joystickstuff import Button, TriggerAxis, Stick, Hat
 from pygame import joystick, draw
 
 class LoadGenericController():
     buttonlist = []
     axislist = []
     sticklist = []
+    hatlist = []
     StickLines = True
     ID = False
     actioncount = 0
@@ -22,6 +23,17 @@ class LoadGenericController():
         for item in self.axislist:
             item.Rotate()
 
+        offset = 115
+        for i in range(joystick.get_numhats()):
+            self.hatlist.append(Hat(i, 70, offset + i*95))
+        dummyhat = Hat(-1, 70, 115)
+        dummyhat.state = (-1,-1)
+        def stinkupdate(self):
+            self.updateImage()
+            return False
+        dummyhat.UpdateSelf = stinkupdate
+        self.hatlist.append(dummyhat)
+
     def update(self):
         for item in self.buttonlist:
             check = item.UpdateSelf( self.ID)
@@ -33,6 +45,11 @@ class LoadGenericController():
                 self.actioncount = self.actioncount+1
         for item in self.sticklist:
             check = item.UpdateSelf(self.ID)
+            if check:
+                self.actioncount = self.actioncount+1
+        for item in self.hatlist:
+            check = item.UpdateSelf(item)
+            #check = item.UpdateSelf(self.ID)
             if check:
                 self.actioncount = self.actioncount+1
 
@@ -47,12 +64,14 @@ class LoadGenericController():
             item.draw(WINDOW)
             if self.StickLines == True:
                 draw.line(WINDOW, (0, 255, 0), (item.x + 13, item.y + 13), (item.x + item.hormod + 13, item.y + item.vertmod + 13), 2)
-
+        for item in self.hatlist:
+            item.draw(WINDOW)
 
 class GenericController():
     buttonlist = []
     axislist = []
     sticklist = []
+    hatlist = []
     StickLines = True
     ID = False
     actioncount = 0
@@ -74,6 +93,10 @@ class GenericController():
             check = item.UpdateSelf(self.ID)
             if check:
                 self.actioncount = self.actioncount+1
+        for item in self.hatlist:
+            check = item.UpdateSelf(self.ID)
+            if check:
+                self.actioncount = self.actioncount+1
 
         self.timecount = self.timecount+1
 
@@ -86,6 +109,8 @@ class GenericController():
             item.draw(WINDOW)
             if self.StickLines == True:
                 draw.line(WINDOW, (0, 255, 0), (item.x + 13, item.y + 13), (item.x + item.hormod + 13, item.y + item.vertmod + 13), 2)
+        for item in self.hatlist:
+            item.draw(WINDOW)
 
     def getcount(self):
         return self.actioncount
