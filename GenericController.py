@@ -26,13 +26,13 @@ class LoadGenericController():
         offset = 115
         for i in range(joystick.get_numhats()):
             self.hatlist.append(Hat(i, 70, offset + i*95))
-        dummyhat = Hat(-1, 70, 115)
-        dummyhat.state = (-1,-1)
-        def stinkupdate(self):
-            self.updateImage()
-            return False
-        dummyhat.UpdateSelf = stinkupdate
-        self.hatlist.append(dummyhat)
+        #dummyhat = Hat(-1, 70, 115)
+        #dummyhat.state = (-1,-1)
+        #def stinkupdate(self):
+        #    self.updateImage()
+        #    return False
+        #dummyhat.UpdateSelf = stinkupdate
+        #self.hatlist.append(dummyhat)
 
     def update(self):
         for item in self.buttonlist:
