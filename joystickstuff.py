@@ -21,7 +21,7 @@ class Button():
     def UpdateSelf(self, ID):
         if len(joysticks) > 0:
             length = joysticks[ID].get_numbuttons()
-            if self.buttonnum < length and self.buttonnum > 0:
+            if self.buttonnum < length and self.buttonnum >= 0:
                 self.state = joysticks[ID].get_button(self.buttonnum)
         else:
             self.state = 0
