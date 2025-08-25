@@ -1,4 +1,5 @@
 import pygame
+from Actions import ModAction, ActionContainer
 from PS5Controller import PlayStation5Controller
 from os import listdir
 from joystickstuff import Button, Stick, TriggerAxis
@@ -30,19 +31,7 @@ text = font.render(words, True, (200, 74, 220))
 drawlist = []
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 ActiveStick = False
-#ActiveStick = PlayStation5Controller(0)
-#for item in ActiveStick.buttonlist:
-    #item.x = item.x + x
-    #item.y = item.y + y
-#for item in ActiveStick.axislist:
-    #item.x = item.x + x
-    #item.y = item.y + y
-#for item in ActiveStick.sticklist:
-    #item.x = item.x + x
-    #item.y = item.y + y
-#name = joysticks[ActiveStick.ID].get_name()
-#pygame.joystick.init()
-
+currentAction = ActionContainer()
 
 
 collidables = []
@@ -172,7 +161,7 @@ def load(filename = ""):
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(axisnum, xpos, ypos)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
@@ -202,7 +191,7 @@ def load(filename = ""):
             addstick.load()
             sticklist.append(addstick)
 
-    Controller = False
+    controller = False
     if ActiveStick:
         Controller = GenericController(ActiveStick.ID)
         Controller.buttonlist = buttonlist
@@ -274,8 +263,6 @@ def rotateButtonImage():
     morph.Rotate()
     stickcollidables()
 
-
-
 ChangeImage = pygame.image.load('changebutton.png')
 changebutton = button(x+20, y-50, ChangeImage)
 changebutton.doclicked = changeButtonImage
@@ -286,9 +273,66 @@ ButtonModList = []
 ButtonModList.append(changebutton)
 ButtonModList.append(rotatebutton)
 
+horizontalaxis = pygame.image.load('horizontalaxisbutton.png')
+
+changehorizontalbutton = button(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
+def changehorizontalaxis(self):
+    numswap = self.trigger.axis
+    self.Core.horaxis = numswap
+    if ActiveStick:
+       for item in ActiveStick.axislist:
+           if item == self.trigger:
+               ActiveStick.axislist.remove(item)
+    stickcollidables()
+
+def changehorizontalclicked():
+    action = ModAction(widgetCell.holding, TriggerAxis(),"CLICK DESIRED HORIZONTAL AXIS")
+    ModAction.doaction = changehorizontalaxis
+    return action
+changehorizontalbutton.doclicked = changehorizontalclicked
+
+vertaxis = pygame.image.load('vertaxisbutton.png')
+
+changevertbutton = button(rotatebutton.rect.x, changehorizontalbutton.rect.y, vertaxis)
+def changevertaxis(self):
+    numswap = self.trigger.axis
+    self.Core.vertaxis = numswap
+    if ActiveStick:
+       for item in ActiveStick.axislist:
+           if item == self.trigger:
+               ActiveStick.axislist.remove(item)
+    stickcollidables()
+
+def changevertclicked():
+    action = ModAction(widgetCell.holding, TriggerAxis(),"CLICK DESIRED VERTICAL AXIS")
+    ModAction.doaction = changevertaxis
+    return action
+changevertbutton.doclicked = changevertclicked
+
+changeButtonImage = pygame.image.load('addbutton.png')
+
+changeButton = button(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
+def changestickbutton(self):
+    numswap = self.trigger.buttonnum
+    self.Core.buttonnum = numswap
+    if ActiveStick:
+       for item in ActiveStick.buttonlist:
+           if item == self.trigger:
+               ActiveStick.buttonlist.remove(item)
+    stickcollidables()
+
+def changebuttonclicked():
+    action = ModAction(widgetCell.holding, Button(),"CLICK DESIRED BUTTON")
+    ModAction.doaction = changestickbutton
+    return action
+changeButton.doclicked = changebuttonclicked
+
 StickModList = []
 StickModList.append(changebutton)
 StickModList.append(rotatebutton)
+StickModList.append(changehorizontalbutton)
+StickModList.append(changevertbutton)
+StickModList.append(changeButton)
 
 AxisModList = []
 AxisModList.append(rotatebutton)
@@ -390,8 +434,6 @@ def stickcollidables():
         if item not in collidables:
             collidables.append(item)
 
-#stickcollidables()
-
 while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -433,11 +475,18 @@ while not done:
 
                                 ActiveStick.sticklist.append(check)
                                 stickcollidables()
-                    else:
-                        selecteditem = collided
-                        print(str(selecteditem))
-                        widgetCell.holdItem(selecteditem)
+                        if check.__class__ == ModAction:
+                            currentAction.action = check
+                    elif currentAction.hasAction():
+                        currentAction.setTrigger(collided)
+                    elif widgetCell.holding == False or widgetCell.holding != collided:
+                        widgetCell.holdItem(collided)
+                        widgetCell.stopdrag()
                         widgetCell.update()
+                    elif widgetCell.holding == collided:
+                        widgetCell.dragging = True
+
+
                     break
             if touch == False:
                 widgetCell.holdItem(False)
@@ -470,6 +519,11 @@ while not done:
 
     if widgetCell.holding:
         widgetCell.draw(display)
+    if currentAction.hasAction() != False:
+        actiontext = currentAction.action.text
+        font = pygame.font.Font('Zou.ttf', 24)
+        active = font.render(actiontext,True,(20,20,230))
+        display.blit(active,(175,120))
 
     pygame.display.update()
     clock.tick(60)

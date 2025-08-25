@@ -49,8 +49,8 @@ psbutton = Button(5, 195, 122)
 psbutton.pressed = "./buttons/playstationpressed.png"
 psbutton.unpressed = "./buttons/playstationunpressed.png"
 
-l2Trigger = TriggerAxis(4, 18, 5)
-r2Trigger = TriggerAxis(5, 378, 5)
+l2Trigger = TriggerAxis(18, 5,4)
+r2Trigger = TriggerAxis(378, 5, 5)
 
 lstick = Stick(147, 185,1,0, 7)
 rstick = Stick( 249, 185,3,2, 8)

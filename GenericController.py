@@ -17,7 +17,7 @@ class LoadGenericController():
         offset = 150 + (i*20)
 
         for i in range(joystick.get_numaxes()):
-            self.axislist.append(TriggerAxis(i,40, offset + (i*20)))
+            self.axislist.append(TriggerAxis(40, offset + (i*20), i))
 
         for item in self.axislist:
             item.Rotate()
@@ -86,3 +86,6 @@ class GenericController():
             item.draw(WINDOW)
             if self.StickLines == True:
                 draw.line(WINDOW, (0, 255, 0), (item.x + 13, item.y + 13), (item.x + item.hormod + 13, item.y + item.vertmod + 13), 2)
+
+    def getcount(self):
+        return self.actioncount

@@ -10,7 +10,7 @@ class Button():
     off = image.load(unpressed)
     on = image.load(pressed)
     rotate = 0
-    def __init__(self, buttonnum, x, y):
+    def __init__(self, buttonnum=-1, x=-1, y=-1):
         self.x = x
         self.y = y
         self.buttonnum = buttonnum
@@ -21,7 +21,7 @@ class Button():
     def UpdateSelf(self, ID):
         if len(joysticks) > 0:
             length = joysticks[ID].get_numbuttons()
-            if self.buttonnum < length:
+            if self.buttonnum < length and self.buttonnum > 0:
                 self.state = joysticks[ID].get_button(self.buttonnum)
         else:
             self.state = 0
@@ -54,7 +54,7 @@ class TriggerAxis():
     bar = image.load(barimage)
     paddle = image.load(paddleimage)
     horizontal = False
-    def __init__(self, axis, x, y):
+    def __init__(self, x =-1, y = -1, axis = -1):
             self.x = x
             self.y = y
             self.ymod = -1
@@ -159,3 +159,12 @@ class Stick():
         else:
             self.rotate = 0
         self.load()
+
+    def changehorizontalaxis(self, newaxisnum):
+        self.horaxis = newaxisnum
+
+    def changeverticalaxis(self, newaxisnum):
+        self.vertaxis = newaxisnum
+
+    def changebutton(self, newbuttonnum):
+        self.buttonnum = newbuttonnum
