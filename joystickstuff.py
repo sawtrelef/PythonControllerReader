@@ -194,9 +194,10 @@ class Hat():
         if (self.hatnumber >= 0):
             if len(joysticks) > 0:
                 length = joysticks[ID].get_numbuttons()
-                if self.hatnumber < length:
+                if self.hatnumber < length and self.hatnumber > -1:
                     if self.state != joysticks[ID].get_hat(self.hatnumber) and self.state != (0,0):
                         action = True
+                    self.state = joysticks[ID].get_hat(self.hatnumber)
                 else:
                     self.state = (0,0)
         else:

@@ -20,3 +20,4 @@ Number of Independent Axis: 2
 Number of Sticks: 2
 (1,0,7,147,185,./sticks/stickpressed.png,./sticks/stickunpressed.png)
 (3,2,8,249,185,./sticks/stickpressed.png,./sticks/stickunpressed.png)
+Number of Hats:0

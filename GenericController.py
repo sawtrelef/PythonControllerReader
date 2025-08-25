@@ -48,8 +48,8 @@ class LoadGenericController():
             if check:
                 self.actioncount = self.actioncount+1
         for item in self.hatlist:
-            check = item.UpdateSelf(item)
-            #check = item.UpdateSelf(self.ID)
+            #check = item.UpdateSelf(item)
+            check = item.UpdateSelf(self.ID)
             if check:
                 self.actioncount = self.actioncount+1
 
