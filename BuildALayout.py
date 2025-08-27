@@ -16,11 +16,22 @@ workrectimage = pygame.image.load('assets/Background.png')
 workrect = workrectimage.get_rect()
 width = workrect.bottomright[0]
 height = workrect.bottomright[1]
-display = pygame.display.set_mode((600,700))
-rect = pygame.rect.Rect(0,0,600,700)
-
 x = 150
 y = 350
+
+displaywidth = 600
+displayheight = 725
+
+if x + width > displaywidth:
+    displaywidth = x + width +20
+
+if y + height > displayheight:
+    displayheight = y + height + 225
+
+display = pygame.display.set_mode((displaywidth,displayheight))
+rect = pygame.rect.Rect(0,0,displaywidth,displayheight)
+
+
 clock = pygame.time.Clock()
 
 done = False
@@ -249,15 +260,16 @@ def load(filename = ""):
     return False
 
 def makeStick():
-    emptystick = Stick(425, 655)
+    emptystick = Stick(MakeStickButton.rect.x + 145, MakeStickButton.rect.y)
     return emptystick
 
 saveimage = pygame.image.load('assets/savebutton.png')
 loadimage = pygame.image.load('assets/loadbutton.png')
 makestickimage = pygame.image.load('assets/makestickbutton.png')
-MakeStickButton = button(290,655, makestickimage)
-SaveButton = button(370,610,saveimage)
-LoadButton = button(210, 610,loadimage)
+
+SaveButton = button((x + width)/2-(saveimage.get_rect().bottomright[0])/2,y + height + 20,saveimage)
+LoadButton = button(SaveButton.rect.x + 145, SaveButton.rect.y,loadimage)
+MakeStickButton = button(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
 SaveButton.doclicked = save
 LoadButton.doclicked = load
 MakeStickButton.doclicked = makeStick
@@ -405,10 +417,10 @@ class HoldingCell():
         self.dragging = False
 
     def Drag(self, position):
-        self.holding.x = position[0]
-        self.holding.rect.x = position[0]
-        self.holding.y = position[1]
-        self.holding.rect.y = position[1]
+        self.holding.x = position[0]-5
+        self.holding.rect.x = position[0]-5
+        self.holding.y = position[1]-5
+        self.holding.rect.y = position[1]-5
 
     def update(self):
         for item in self.buttonlist:
@@ -555,6 +567,7 @@ while not done:
 
     pygame.draw.rect(display,(255,255,255),rect)
     display.blit(text, (20, 20))
+    pygame.draw.rect(display, (0, 0, 0), (x - 1, y - 1, width + 2, height + 2))
     display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
