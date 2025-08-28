@@ -25,8 +25,8 @@ displayheight = 725
 if x + width > displaywidth:
     displaywidth = x + width +20
 
-if y + height > displayheight:
-    displayheight = y + height + 225
+if y + height + 115 > displayheight:
+    displayheight = y + height + 115
 
 display = pygame.display.set_mode((displaywidth,displayheight))
 rect = pygame.rect.Rect(0,0,displaywidth,displayheight)
