@@ -24,7 +24,8 @@ class LoadGenericController():
             item.Rotate()
 
         offset = 115
-        for i in range(joystick.get_numhats()):
+        length = joystick.get_numhats()
+        for i in range(length):
             self.hatlist.append(Hat(i, 70, offset + i*95))
         #dummyhat = Hat(-1, 70, 115)
         #dummyhat.state = (-1,-1)

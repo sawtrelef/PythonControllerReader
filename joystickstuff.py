@@ -170,9 +170,9 @@ class Stick():
         self.buttonnum = newbuttonnum
 
 class Hat():
-    background = 'assets/hatbackground.png'
-    pressed = 'buttons/arrowpressed.png'
-    unpressed = 'buttons/unpressed.png'
+    background = './hats/hatbackground.png'
+    pressed = './hats/arrowpressed.png'
+    unpressed = './hats/unpressed.png'
     rotate = 0
     rotatemod = 0
     backgroundimage = image.load(background)
@@ -187,13 +187,15 @@ class Hat():
         self.y = y
         self.backgroundrect = self.backgroundimage.get_rect()
         self.staterect = self.stateimage.get_rect()
+        self.backgroundcenterx = self.backgroundrect[2]/2
+        self.centery = self.backgroundrect[3]/2
         self.state = (0,0)
 
     def UpdateSelf(self,ID):
         action = False
         if (self.hatnumber >= 0):
             if len(joysticks) > 0:
-                length = joysticks[ID].get_numbuttons()
+                length = joysticks[ID].get_numhats()
                 if self.hatnumber < length and self.hatnumber > -1:
                     if self.state != joysticks[ID].get_hat(self.hatnumber) and self.state != (0,0):
                         action = True
@@ -208,8 +210,8 @@ class Hat():
 
     def updateImage(self):
 
-        self.imagex = self.state[0] * self.staterect[2] + self.backgroundrect[2]/2 - self.staterect[3]/2 + self.x+1
-        self.imagey = -self.state[1] * self.staterect[3] - self.staterect[3]/2 + self.backgroundrect[3]/2 + self.y
+        #self.imagex = (self.state[0] * self.staterect[2]) + self.backgroundrect[2]/2 - self.staterect[3]/2 + self.x+1
+        #self.imagey = (-self.state[1] * self.staterect[3]) - self.staterect[3]/2 + self.backgroundrect[3]/2 + self.y
         self.rotatemod = 0
         if self.state == (0, 0):
             self.stateimage = self.unpressedimage
@@ -223,7 +225,10 @@ class Hat():
                 elif self.state[1] == -1:
                     self.rotatemod = 180
 
-
+        self.staterect = self.stateimage.get_rect()
+        self.imagex = (self.state[0] * self.staterect[2]) + self.backgroundrect[2] / 2 - self.staterect[
+            3] / 2 + self.x + 1
+        self.imagey = (-self.state[1] * self.staterect[3]) - self.staterect[3] / 2 + self.backgroundrect[3] / 2 + self.y
         self.stateimage = transform.rotate(self.stateimage, self.rotate+self.rotatemod)
 
     def draw(self,WINDOW):
