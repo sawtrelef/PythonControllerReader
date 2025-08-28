@@ -28,3 +28,5 @@ Requirements:
 If you wish to customize the options buttons, all of those currently live in the assets folder with names you'd expect them to be - why you'd do this I do not know.
 
 OH, and to move things around simply select the button/axis/stick by clicking on it, and then clicking the selected button/axis/stick a second time will allow you to drag it around!
+
+If you accidentally overwrite the default provided layout.txt, an extra copy of the PS5 default is provided in the assets folder.
