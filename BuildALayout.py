@@ -452,9 +452,15 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory + file)
             self.buttonlist = AxisModList
-
+        templist = []
+        for item in collidables:
+            templist.append(item)
+        collidables.clear()
         for item in self.buttonlist:
             collidables.append(item)
+        for item in templist:
+            collidables.append(item)
+
 
 
     def draw(self, WINDOW):
@@ -515,7 +521,9 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
             touch = False
-            for item in collidables:
+
+            for i in range(len(collidables)-1,-1,-1):
+                item = collidables[i]
                 touch = CollisionCheck(position, item.rect)
                 if touch:
                     collided = item
@@ -572,6 +580,9 @@ while not done:
     SaveButton.draw(display)
     LoadButton.draw(display)
     MakeStickButton.draw(display)
+    if widgetCell.holding:
+        widgetCell.draw(display)
+
     if ActiveStick:
         font = pygame.font.Font('Zou.ttf', 48)
         active = font.render(str(name).upper(),True,(40,200,60))
@@ -579,8 +590,7 @@ while not done:
         ActiveStick.update()
         ActiveStick.draw(display)
 
-    if widgetCell.holding:
-        widgetCell.draw(display)
+
     if currentAction.hasAction() != False:
         actiontext = currentAction.action.text
         font = pygame.font.Font('Zou.ttf', 24)
