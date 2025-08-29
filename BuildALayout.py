@@ -4,6 +4,7 @@ from PS5Controller import PlayStation5Controller
 from os import listdir
 from joystickstuff import Button, Stick, TriggerAxis, Hat
 from GenericController import LoadGenericController, GenericController
+from ClickableOptionButton import ClickableOptionButton
 
 
 
@@ -46,23 +47,6 @@ currentAction = ActionContainer()
 
 
 collidables = []
-
-class button():
-    def __init__(self, x, y, image):
-        self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-    def draw(self, WINDOW, rect=False, transform=False):
-        WINDOW.blit(self.image, self.rect)
-
-    # MAKE MORE GENERIC, WILL NEVER NEED A CLICKABLE BUTTON FOR DRAWING CARD, THIS WAS WRITTEN FOR TESTING PURPOSES ONLY
-    def doclicked(self):
-        return False
-
-    def setImage(self, image):
-        self.image = image
 
 def save():
     file = open('layout.txt', 'w')
@@ -267,9 +251,9 @@ saveimage = pygame.image.load('assets/savebutton.png')
 loadimage = pygame.image.load('assets/loadbutton.png')
 makestickimage = pygame.image.load('assets/makestickbutton.png')
 
-SaveButton = button((x + width)/2-(saveimage.get_rect().bottomright[0])/2,y + height + 20,saveimage)
-LoadButton = button(SaveButton.rect.x + 145, SaveButton.rect.y,loadimage)
-MakeStickButton = button(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
+SaveButton = ClickableOptionButton((x + width)/2-(saveimage.get_rect().bottomright[0])/2,y + height + 20,saveimage)
+LoadButton = ClickableOptionButton(SaveButton.rect.x + 145, SaveButton.rect.y,loadimage)
+MakeStickButton = ClickableOptionButton(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
 SaveButton.doclicked = save
 LoadButton.doclicked = load
 MakeStickButton.doclicked = makeStick
@@ -317,10 +301,10 @@ def rotateButtonImage():
     stickcollidables()
 
 ChangeImage = pygame.image.load('assets/changebutton.png')
-changebutton = button(x+20, y-50, ChangeImage)
+changebutton = ClickableOptionButton(x+20, y-50, ChangeImage)
 changebutton.doclicked = changeButtonImage
 RotateImage = pygame.image.load('assets/rotatebutton.png')
-rotatebutton = button(x+40+135, y-50, RotateImage)
+rotatebutton = ClickableOptionButton(x+40+135, y-50, RotateImage)
 rotatebutton.doclicked = rotateButtonImage
 ButtonModList = []
 ButtonModList.append(changebutton)
@@ -328,7 +312,7 @@ ButtonModList.append(rotatebutton)
 
 horizontalaxis = pygame.image.load('assets/horizontalaxisbutton.png')
 
-changehorizontalbutton = button(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
+changehorizontalbutton = ClickableOptionButton(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
 def changehorizontalaxis(self):
     numswap = self.trigger.axis
     self.Core.horaxis = numswap
@@ -346,7 +330,7 @@ changehorizontalbutton.doclicked = changehorizontalclicked
 
 vertaxis = pygame.image.load('assets/vertaxisbutton.png')
 
-changevertbutton = button(rotatebutton.rect.x, changehorizontalbutton.rect.y, vertaxis)
+changevertbutton = ClickableOptionButton(rotatebutton.rect.x, changehorizontalbutton.rect.y, vertaxis)
 def changevertaxis(self):
     numswap = self.trigger.axis
     self.Core.vertaxis = numswap
@@ -364,7 +348,7 @@ changevertbutton.doclicked = changevertclicked
 
 changeButtonImage = pygame.image.load('assets/addbutton.png')
 
-changeButton = button(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
+changeButton = ClickableOptionButton(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
 def changestickbutton(self):
     numswap = self.trigger.buttonnum
     self.Core.buttonnum = numswap
@@ -527,7 +511,7 @@ while not done:
                 touch = CollisionCheck(position, item.rect)
                 if touch:
                     collided = item
-                    if collided.__class__ == button:
+                    if collided.__class__ == ClickableOptionButton:
                         check = collided.doclicked()
                         if check.__class__ == GenericController:
                             ActiveStick = check

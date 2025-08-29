@@ -2,23 +2,7 @@ import pygame
 from PS5Controller import PlayStation5Controller
 from joystickstuff import Button, TriggerAxis, Stick, Hat
 from GenericController import GenericController
-
-pygame.init()
-
-font = pygame.font.Font('Zou.ttf', 32)
-background = pygame.image.load("assets/Background.png")
-rect = background.get_rect()
-x = int(rect.bottomright[0])
-y = int(rect.bottomright[1])
-pygame.display.set_caption('Controller Input Visualizer')
-display = pygame.display.set_mode((x,y))
-clock = pygame.time.Clock()
-#font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
-
-controller = False
-
-
-
+from ClickableOptionButton import ClickableOptionButton
 
 class APMCounter():
     value = 0
@@ -35,6 +19,12 @@ class APMCounter():
     def draw(self, WINDOW):
         text = font.render('APM : ' + str(self.actionperminute), True, (149, 75, 220))
         WINDOW.blit(text, (int(x/2)-45, y-35))
+
+    def resetCounter(self):
+        self.actionperminute = 0
+        self.timepassed = 0
+
+controller = False
 
 def load(filename = ""):
     if filename == "":
@@ -156,9 +146,54 @@ def load(filename = ""):
         return Controller
     return False
 
-#controller = PlayStation5Controller(0)
 controller = load("layout.txt")
 counter = APMCounter(controller)
+pygame.init()
+
+font = pygame.font.Font('Zou.ttf', 32)
+background = pygame.image.load("assets/Background.png")
+rect = background.get_rect()
+x = int(rect.bottomright[0])
+y = int(rect.bottomright[1])
+pygame.display.set_caption('Controller Input Visualizer')
+display = pygame.display.set_mode((x,y))
+clock = pygame.time.Clock()
+#font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
+
+
+
+def Reset():
+        counter.resetCounter()
+        controller.resetCounter()
+        return 0
+
+def ToggleLines():
+    controller.StickLines = not controller.StickLines
+
+resetimage = pygame.image.load('./assets/resetbutton.png')
+resetrect = resetimage.get_rect()
+ResetButton = ClickableOptionButton(1, y-resetrect.bottomright[1]-1,resetimage)
+ResetButton.doclicked = Reset
+
+linetoggleimage = pygame.image.load('./assets/linesbutton.png')
+linerect = linetoggleimage.get_rect()
+LineToggleButton = ClickableOptionButton(x-linerect.bottomright[0], y - linerect.bottomright[1]-1,linetoggleimage)
+LineToggleButton.doclicked = ToggleLines
+
+collidables = []
+collidables.append(ResetButton)
+collidables.append(LineToggleButton)
+def CollisionCheck(mousepos, collisionbox):
+    mousex = mousepos[0]
+    mousey = mousepos[1]
+
+    if mousex >= collisionbox[0] and mousex <= collisionbox[0]+collisionbox[2]:
+        if mousey >= collisionbox[1] and mousey <= collisionbox[1]+collisionbox[3]:
+            return True
+    return False
+
+#controller = PlayStation5Controller(0)
+
 done = False
 while not done:
 
@@ -166,6 +201,19 @@ while not done:
     for event in eventlist:
         if event.type == pygame.QUIT:
             done = True
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                position = pygame.mouse.get_pos()
+                touch = False
+
+                for i in range(len(collidables) - 1, -1, -1):
+                    item = collidables[i]
+                    touch = CollisionCheck(position, item.rect)
+                    if touch:
+                        collided = item
+                        if collided.__class__ == ClickableOptionButton:
+                            check = collided.doclicked()
     if done:
 
         break
@@ -175,6 +223,8 @@ while not done:
     display.blit(background, (0,0))
     controller.draw(display)
     counter.draw(display)
+    ResetButton.draw(display)
+    LineToggleButton.draw(display)
 
 
     pygame.display.update()

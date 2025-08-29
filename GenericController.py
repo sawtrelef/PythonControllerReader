@@ -68,6 +68,10 @@ class LoadGenericController():
         for item in self.hatlist:
             item.draw(WINDOW)
 
+    def resetCounter(self):
+        self.actioncount = 0
+        self.timecount = 0
+
 class GenericController():
     buttonlist = []
     axislist = []
@@ -115,3 +119,7 @@ class GenericController():
 
     def getcount(self):
         return self.actioncount
+
+    def resetCounter(self):
+        self.actioncount = 0
+        self.timecount = 0
