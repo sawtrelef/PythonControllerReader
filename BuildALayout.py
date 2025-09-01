@@ -6,8 +6,6 @@ from joystickstuff import Button, Stick, TriggerAxis, Hat
 from GenericController import LoadGenericController, GenericController
 from ClickableOptionButton import ClickableOptionButton
 
-
-
 pygame.init()
 
 font = pygame.font.Font('Zou.ttf', 48)
@@ -32,21 +30,85 @@ if y + height + 115 > displayheight:
 display = pygame.display.set_mode((displaywidth,displayheight))
 rect = pygame.rect.Rect(0,0,displaywidth,displayheight)
 
-
 clock = pygame.time.Clock()
 
 done = False
 words = "PRESS BUTTON"
 text = font.render(words, True, (200, 74, 220))
 
-
 drawlist = []
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 ActiveStick = False
 currentAction = ActionContainer()
 
-
 collidables = []
+
+class HoldingCell():
+    def __init__(self):
+        self.holding = False
+        self.dragging = False
+        self.buttonlist = []
+        self.changelist = []
+
+    def holdItem(self,item):
+        self.holding = item
+        if item:
+            self.dragging = True
+
+    def stopdrag(self):
+        self.dragging = False
+
+    def Drag(self, position):
+        self.holding.x = position[0]-5
+        self.holding.rect.x = position[0]-5
+        self.holding.y = position[1]-5
+        self.holding.rect.y = position[1]-5
+
+    def update(self):
+        for item in self.buttonlist:
+            for thing in collidables:
+                if item == thing:
+                    collidables.remove(item)
+        self.buttonlist = []
+        if self.holding.__class__ == Button:
+            self.changelist = []
+            directory = './buttons/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory+file)
+            self.buttonlist = ButtonModList
+        if self.holding.__class__ == Stick:
+            self.changelist = []
+            directory = './sticks/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory+file)
+            self.buttonlist = StickModList
+        if self.holding.__class__ == TriggerAxis:
+            self.changelist = []
+            directory = './Axis/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory + file)
+            self.buttonlist = AxisModList
+        templist = []
+        for item in collidables:
+            templist.append(item)
+        collidables.clear()
+        for item in self.buttonlist:
+            collidables.append(item)
+        for item in templist:
+            collidables.append(item)
+
+    def draw(self, WINDOW):
+        for item in self.buttonlist:
+            item.draw(WINDOW)
+
+widgetCell = HoldingCell()
+
 
 def save():
     file = open('layout.txt', 'w')
@@ -262,7 +324,6 @@ collidables.append(SaveButton)
 collidables.append(LoadButton)
 collidables.append(MakeStickButton)
 
-
 def changeButtonImage():
     morph = widgetCell.holding
     if morph.__class__ == Button or morph.__class__ == Stick:
@@ -313,9 +374,24 @@ ButtonModList.append(rotatebutton)
 horizontalaxis = pygame.image.load('assets/horizontalaxisbutton.png')
 
 changehorizontalbutton = ClickableOptionButton(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
+def addButtontoController(Core, buttonnum):
+    axisadd = Button(buttonnum ,Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2))
+    axisadd.Rotate()
+    ActiveStick.buttonlist.append(axisadd)
+
+def addAxistoController(Core, Axisnum):
+    axisadd = TriggerAxis(Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2), Axisnum)
+    axisadd.Rotate()
+    ActiveStick.axislist.append(axisadd)
+
 def changehorizontalaxis(self):
     numswap = self.trigger.axis
-    self.Core.horaxis = numswap
+    if self.Core.horaxis >= 0:
+        temp = self.Core.horaxis
+        self.Core.horaxis = numswap
+        addAxistoController(self.Core, temp)
+    else:
+        self.Core.horaxis = numswap
     if ActiveStick:
        for item in ActiveStick.axislist:
            if item == self.trigger:
@@ -333,7 +409,12 @@ vertaxis = pygame.image.load('assets/vertaxisbutton.png')
 changevertbutton = ClickableOptionButton(rotatebutton.rect.x, changehorizontalbutton.rect.y, vertaxis)
 def changevertaxis(self):
     numswap = self.trigger.axis
-    self.Core.vertaxis = numswap
+    if self.Core.vertaxis >= 0:
+        temp = self.Core.vertaxis
+        self.Core.vertaxis = numswap
+        addAxistoController(self.Core, temp)
+    else:
+        self.Core.vertaxis = numswap
     if ActiveStick:
        for item in ActiveStick.axislist:
            if item == self.trigger:
@@ -347,11 +428,15 @@ def changevertclicked():
 changevertbutton.doclicked = changevertclicked
 
 changeButtonImage = pygame.image.load('assets/addbutton.png')
-
 changeButton = ClickableOptionButton(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
 def changestickbutton(self):
     numswap = self.trigger.buttonnum
-    self.Core.buttonnum = numswap
+    if self.Core.buttonnum >= 0:
+        temp = self.Core.buttonnum
+        self.Core.buttonnum = numswap
+        addButtontoController(self.Core, temp)
+    else:
+        self.Core.buttonnum = numswap
     if ActiveStick:
        for item in ActiveStick.buttonlist:
            if item == self.trigger:
@@ -364,17 +449,34 @@ def changebuttonclicked():
     return action
 changeButton.doclicked = changebuttonclicked
 
+DropSettingsImage = pygame.image.load('assets/dropsettings.png')
+detachAllButton = ClickableOptionButton(changeButton.rect.x - DropSettingsImage.get_rect().bottomright[0]-10, changeButton.rect.y, DropSettingsImage)
+def detachAllclicked():
+    if widgetCell.holding:
+        itemstoadd = widgetCell.holding.dropItems()
+    else:
+        itemstoadd = []
+    for item in itemstoadd:
+        if item.__class__ == list:
+            for thing in item:
+                ActiveStick.axislist.append(thing)
+        else:
+            ActiveStick.buttonlist.append(item)
+
+    stickcollidables()
+detachAllButton.doclicked = detachAllclicked
+
+
 StickModList = []
 StickModList.append(changebutton)
 StickModList.append(rotatebutton)
 StickModList.append(changehorizontalbutton)
 StickModList.append(changevertbutton)
 StickModList.append(changeButton)
+StickModList.append(detachAllButton)
 
 AxisModList = []
 AxisModList.append(rotatebutton)
-
-
 
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
@@ -385,74 +487,10 @@ def CollisionCheck(mousepos, collisionbox):
             return True
     return False
 
-class HoldingCell():
-    def __init__(self):
-        self.holding = False
-        self.dragging = False
-        self.buttonlist = []
-        self.changelist = []
-
-    def holdItem(self,item):
-        self.holding = item
-        if item:
-            self.dragging = True
-
-    def stopdrag(self):
-        self.dragging = False
-
-    def Drag(self, position):
-        self.holding.x = position[0]-5
-        self.holding.rect.x = position[0]-5
-        self.holding.y = position[1]-5
-        self.holding.rect.y = position[1]-5
-
-    def update(self):
-        for item in self.buttonlist:
-            for thing in collidables:
-                if item == thing:
-                    collidables.remove(item)
-        self.buttonlist = []
-        if self.holding.__class__ == Button:
-            self.changelist = []
-            directory = './buttons/'
-            filelist = listdir(directory)
-            for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory+file)
-            self.buttonlist = ButtonModList
-        if self.holding.__class__ == Stick:
-            self.changelist = []
-            directory = './sticks/'
-            filelist = listdir(directory)
-            for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory+file)
-            self.buttonlist = StickModList
-        if self.holding.__class__ == TriggerAxis:
-            self.changelist = []
-            directory = './Axis/'
-            filelist = listdir(directory)
-            for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory + file)
-            self.buttonlist = AxisModList
-        templist = []
-        for item in collidables:
-            templist.append(item)
-        collidables.clear()
-        for item in self.buttonlist:
-            collidables.append(item)
-        for item in templist:
-            collidables.append(item)
-
-
-
     def draw(self, WINDOW):
         for item in self.buttonlist:
             item.draw(WINDOW)
         return
-
-widgetCell = HoldingCell()
 
 def stickcollidables():
     for item in ActiveStick.buttonlist:

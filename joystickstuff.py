@@ -169,6 +169,32 @@ class Stick():
     def changebutton(self, newbuttonnum):
         self.buttonnum = newbuttonnum
 
+    def dropItems(self):
+
+        droplist = []
+        axis = []
+
+        if self.vertaxis >= 0:
+            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1]), self.vertaxis)
+            axisadd.Rotate()
+            axis.append(axisadd)
+
+        if self.horaxis >= 0:
+            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1] * 2), self.horaxis)
+            axisadd.Rotate()
+            axis.append(axisadd)
+
+        droplist.append(axis)
+        if self.buttonnum >= 0:
+            buttonadd = Button(self.buttonnum, self.x, (self.y - self.stickunpressed.get_rect().bottomright[1] * 3))
+            droplist.append(buttonadd)
+
+        self.vertaxis = -1
+        self.horaxis = -1
+        self.buttonnum = -1
+
+        return droplist
+
 class Hat():
     background = './hats/hatbackground.png'
     pressed = './hats/arrowpressed.png'
