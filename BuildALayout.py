@@ -113,65 +113,65 @@ widgetCell = HoldingCell()
 def save():
     file = open('layout.txt', 'w')
     if ActiveStick:
-        buttonlist = ActiveStick.buttonlist
-        length = len(buttonlist)
+        buttondict = ActiveStick.buttondict
+        length = len(buttondict)
         print("Number of Independent buttons: " + str(length) + '\n')
         file.write("Number of Independent buttons: " + str(length) + '\n')
-        for button in buttonlist:
+        for button in buttondict:
             #(buttonnum, x, y, offimage, onimage, rotation)
-            number = str(button.buttonnum)
-            xposition = str(button.x-x)
-            yposition = str(button.y-y)
-            onimage = str(button.pressed)
-            offimage = str(button.unpressed)
-            rotation = str(button.rotate)
+            number = str(buttondict[button].buttonnum)
+            xposition = str(buttondict[button].x-x)
+            yposition = str(buttondict[button].y-y)
+            onimage = str(buttondict[button].pressed)
+            offimage = str(buttondict[button].unpressed)
+            rotation = str(buttondict[button].rotate)
             buttontext = "({},{},{},{},{},{})\n".format(number,xposition,yposition, offimage,onimage,rotation)
             print(buttontext)
             file.write(buttontext)
-        axislist = ActiveStick.axislist
-        length = len(axislist)
+        axisdict = ActiveStick.axisdict
+        length = len(axisdict)
         print("Number of Independent Axis: " + str(length) + '\n')
         file.write("Number of Independent Axis: " + str(length) + '\n')
-        for axis in axislist:
+        for axis in axisdict:
             #(axisnumber, xpos, ypos, barimage, paddleimage, flippedbool)
-            number = str(axis.axis)
-            xpos = str(axis.x-x)
-            ypos = str(axis.y-y)
-            barim = str(axis.barimage)
-            paddleim = str(axis.paddleimage)
-            flip = str(axis.horizontal)
+            number = str(axisdict[axis].axis)
+            xpos = str(axisdict[axis].x-x)
+            ypos = str(axisdict[axis].y-y)
+            barim = str(axisdict[axis].barimage)
+            paddleim = str(axisdict[axis].paddleimage)
+            flip = str(axisdict[axis].horizontal)
             axistext = "({},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip)
             print(axistext)
             file.write(axistext)
-        sticklist = ActiveStick.sticklist
-        length = len(sticklist)
+        stickdict = ActiveStick.stickdict
+        length = len(stickdict)
         print("Number of Sticks: " + str(length) + '\n')
         file.write("Number of Sticks: " + str(length) + '\n')
-        for stick in ActiveStick.sticklist:
+        for stick in stickdict:
             #(vertaxis,horizontalaxis,buttonnumber, xpos, ypos, pressed, unpressed)
-            vertaxis = str(stick.vertaxis)
-            horizontal = str(stick.horaxis)
-            button = str(stick.buttonnum)
-            xpos = str(stick.x-x)
-            ypos = str(stick.y-y)
-            pressed = str(stick.pressed)
-            unpressed = str(stick.unpressed)
+            vertaxis = str(stickdict[stick].vertaxis)
+            horizontal = str(stickdict[stick].horaxis)
+            button = str(stickdict[stick].buttonnum)
+            xpos = str(stickdict[stick].x-x)
+            ypos = str(stickdict[stick].y-y)
+            pressed = str(stickdict[stick].pressed)
+            unpressed = str(stickdict[stick].unpressed)
             sticktext = "({},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed)
             print(sticktext)
             file.write(sticktext)
-        hatlist = ActiveStick.hatlist
-        length = len(hatlist)
+        hatdict = ActiveStick.hatdict
+        length = len(hatdict)
         print("Number of Hats: " + str(length) + '\n')
         file.write("Number of Hats: " + str(length) + '\n')
-        for hat in ActiveStick.hatlist:
+        for hat in hatdict:
             # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
-            number = str(hat.hatnumber)
-            xposition = str(hat.x - x)
-            yposition = str(hat.y - y)
-            onimage = str(hat.pressed)
-            offimage = str(hat.unpressed)
-            backgroundimage = str(hat.background)
-            rotation = str(hat.rotate)
+            number = str(hatdict[hat].hatnumber)
+            xposition = str(hatdict[hat].x - x)
+            yposition = str(hatdict[hat].y - y)
+            onimage = str(hatdict[hat].pressed)
+            offimage = str(hatdict[hat].unpressed)
+            backgroundimage = str(hatdict[hat].background)
+            rotation = str(hatdict[hat].rotate)
             hattext = '({},{},{},{},{},{},{},)\n'.format(number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
             print(hattext)
             file.write(hattext)
@@ -200,7 +200,7 @@ def load(filename = ""):
         if lines[i][0] == 'N':
             bookmarks.append(i)
 
-    buttonlist = []
+    buttondict = {}
     for i in range(bookmarks[0],bookmarks[1]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
@@ -217,9 +217,9 @@ def load(filename = ""):
             addbutton.pressed = onimage
             addbutton.rotate = rotation
             addbutton.load()
-            buttonlist.append(addbutton)
+            buttondict[buttonnum] = addbutton
 
-    axislist = []
+    axisdict = {}
     for i in range(bookmarks[1],bookmarks[2]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
@@ -240,7 +240,7 @@ def load(filename = ""):
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
             addtrigger.load()
-            axislist.append(addtrigger)
+            axisdict[axisnum] = addtrigger
 
     sticklist = []
     for i in range(bookmarks[2], bookmarks[3]):
@@ -264,7 +264,7 @@ def load(filename = ""):
             addstick.unpressed = offimage
             addstick.load()
             sticklist.append(addstick)
-    hatlist = []
+    hatdict = {}
     for i in range(bookmarks[3], length):
         if lines[i][0] == '(':
             # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
@@ -285,28 +285,28 @@ def load(filename = ""):
             addhat.background = backgroundimage
             addhat.rotate = rotation
             addhat.load()
-            hatlist.append(addhat)
+            hatdict[hatnum]=addhat
 
-    controller = False
     if ActiveStick:
-        Controller = GenericController(ActiveStick.ID)
-        Controller.buttonlist = buttonlist
-        Controller.axislist = axislist
-        Controller.sticklist = sticklist
-        Controller.hatlist = hatlist
+        Controller = GenericController(ActiveStick.gamepad)
     else:
-        Controller = GenericController(0)
-        Controller.buttonlist = buttonlist
-        Controller.axislist = axislist
-        Controller.sticklist = sticklist
-        Controller.hatlist = hatlist
+        Controller = GenericController(False)
+    Controller.buttondict = buttondict
+    Controller.axisdict = axisdict
+    Controller.sticklist = sticklist
+    Controller.hatdict = hatdict
     file.close()
+    Controller.resetListItems()
     if Controller:
         return Controller
     return False
 
 def makeStick():
     emptystick = Stick(MakeStickButton.rect.x + 145, MakeStickButton.rect.y)
+    print(emptystick)
+    if emptystick.controller == False:
+        if ActiveStick:
+            emptystick.controller = ActiveStick
     return emptystick
 
 saveimage = pygame.image.load('assets/savebutton.png')
@@ -375,14 +375,14 @@ horizontalaxis = pygame.image.load('assets/horizontalaxisbutton.png')
 
 changehorizontalbutton = ClickableOptionButton(changebutton.rect.x, changebutton.rect.y-50,horizontalaxis)
 def addButtontoController(Core, buttonnum):
-    axisadd = Button(buttonnum ,Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2))
-    axisadd.Rotate()
-    ActiveStick.buttonlist.append(axisadd)
+    buttonadd = Button(buttonnum ,Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2), ActiveStick)
+    buttonadd.Rotate()
+    ActiveStick.buttondict[buttonnum] = buttonadd
 
 def addAxistoController(Core, Axisnum):
-    axisadd = TriggerAxis(Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2), Axisnum)
+    axisadd = TriggerAxis(Core.x, Core.y - (Core.stickunpressed.get_rect().bottomright[1] * 2), Axisnum, ActiveStick)
     axisadd.Rotate()
-    ActiveStick.axislist.append(axisadd)
+    ActiveStick.axisdict[Axisnum] = axisadd
 
 def changehorizontalaxis(self):
     numswap = self.trigger.axis
@@ -393,9 +393,13 @@ def changehorizontalaxis(self):
     else:
         self.Core.horaxis = numswap
     if ActiveStick:
-       for item in ActiveStick.axislist:
-           if item == self.trigger:
-               ActiveStick.axislist.remove(item)
+        tempdict = []
+        for key in ActiveStick.axisdict:
+            tempdict.append(key)
+        for item in tempdict:
+           if ActiveStick.axisdict[item] == self.trigger:
+               del ActiveStick.axisdict[item]
+        del tempdict
     stickcollidables()
 
 def changehorizontalclicked():
@@ -416,9 +420,13 @@ def changevertaxis(self):
     else:
         self.Core.vertaxis = numswap
     if ActiveStick:
-       for item in ActiveStick.axislist:
-           if item == self.trigger:
-               ActiveStick.axislist.remove(item)
+        tempdict = []
+        for key in ActiveStick.axisdict:
+            tempdict.append(key)
+        for item in tempdict:
+           if ActiveStick.axisdict[item] == self.trigger:
+               del ActiveStick.axisdict[item]
+        del tempdict
     stickcollidables()
 
 def changevertclicked():
@@ -438,9 +446,12 @@ def changestickbutton(self):
     else:
         self.Core.buttonnum = numswap
     if ActiveStick:
-       for item in ActiveStick.buttonlist:
-           if item == self.trigger:
-               ActiveStick.buttonlist.remove(item)
+        tempdict = []
+        for key in ActiveStick.buttondict:
+            tempdict.append(key)
+        for item in tempdict:
+            if ActiveStick.buttondict[item] == self.trigger:
+               del ActiveStick.buttondict[item]
     stickcollidables()
 
 def changebuttonclicked():
@@ -459,9 +470,9 @@ def detachAllclicked():
     for item in itemstoadd:
         if item.__class__ == list:
             for thing in item:
-                ActiveStick.axislist.append(thing)
+                ActiveStick.axisdict[thing.axis] = thing
         else:
-            ActiveStick.buttonlist.append(item)
+            ActiveStick.buttondict[item.buttonnum] = item
 
     stickcollidables()
 detachAllButton.doclicked = detachAllclicked
@@ -487,26 +498,21 @@ def CollisionCheck(mousepos, collisionbox):
             return True
     return False
 
-    def draw(self, WINDOW):
-        for item in self.buttonlist:
-            item.draw(WINDOW)
-        return
-
 def stickcollidables():
-    for item in ActiveStick.buttonlist:
-        rectangle = item.off.get_rect()
-        item.rect = rectangle
-        item.rect.x = item.x
-        item.rect.y = item.y
-        if item not in collidables:
-            collidables.append(item)
-    for item in ActiveStick.axislist:
-        rectangle1 = item.bar.get_rect()
-        item.rect = rectangle1
-        item.rect.x = item.x
-        item.rect.y = item.y
-        if item not in collidables:
-            collidables.append(item)
+    for item in ActiveStick.buttondict:
+        rectangle = ActiveStick.buttondict[item].off.get_rect()
+        ActiveStick.buttondict[item].rect = rectangle
+        ActiveStick.buttondict[item].rect.x = ActiveStick.buttondict[item].x
+        ActiveStick.buttondict[item].rect.y = ActiveStick.buttondict[item].y
+        if ActiveStick.buttondict[item] not in collidables:
+            collidables.append(ActiveStick.buttondict[item])
+    for item in ActiveStick.axisdict:
+        rectangle1 = ActiveStick.axisdict[item].bar.get_rect()
+        ActiveStick.axisdict[item].rect = rectangle1
+        ActiveStick.axisdict[item].rect.x = ActiveStick.axisdict[item].x
+        ActiveStick.axisdict[item].rect.y = ActiveStick.axisdict[item].y
+        if ActiveStick.axisdict[item] not in collidables:
+            collidables.append(ActiveStick.axisdict[item])
     for item in ActiveStick.sticklist:
         rectangle2 = item.stickunpressed.get_rect()
         item.rect = rectangle2
@@ -515,13 +521,13 @@ def stickcollidables():
         if item not in collidables:
             collidables.append(item)
 
-    for item in ActiveStick.hatlist:
-        rectangle3 = item.backgroundimage.get_rect()
-        item.rect = rectangle3
-        item.rect.x = item.x
-        item.rect.y = item.y
-        if item not in collidables:
-            collidables.append(item)
+    for item in ActiveStick.hatdict:
+        rectangle3 = ActiveStick.hatdict[item].backgroundimage.get_rect()
+        ActiveStick.hatdict[item].rect = rectangle3
+        ActiveStick.hatdict[item].rect.x = ActiveStick.hatdict[item].x
+        ActiveStick.hatdict[item].rect.y = ActiveStick.hatdict[item].y
+        if ActiveStick.hatdict[item] not in collidables:
+            collidables.append(ActiveStick.hatdict[item])
 
 while not done:
     for event in pygame.event.get():
@@ -531,7 +537,11 @@ while not done:
             print("Button Pressed")
             if ActiveStick == False:
                 ActiveStick = LoadGenericController(joysticks[event.instance_id],event.instance_id)
-                name = joysticks[event.instance_id].get_name()
+                name = ActiveStick.gamepad.get_name()
+                stickcollidables()
+            if ActiveStick.gamepad == False:
+                ActiveStick.gamepad = joysticks[event.instance_id]
+                ActiveStick.resetListItems()
                 stickcollidables()
 
         if event.type == pygame.JOYDEVICEADDED:

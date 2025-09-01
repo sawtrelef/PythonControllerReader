@@ -1,9 +1,7 @@
 import pygame.image
-from pygame import joystick, image, transform
+from pygame import image, transform
 import os
 os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
-joystick.init()
-joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 
 class Button():
     unpressed = "./buttons/unpressed.png"
@@ -11,19 +9,22 @@ class Button():
     off = image.load(unpressed)
     on = image.load(pressed)
     rotate = 0
-    def __init__(self, buttonnum=-1, x=-1, y=-1):
+    def __init__(self, buttonnum=-1, x=-1, y=-1, controller=False):
         self.x = x
         self.y = y
         self.buttonnum = buttonnum
         self.state = 0
         self.image = self.off
+        self.controller = controller
 
 
-    def UpdateSelf(self, ID):
-        if len(joysticks) > 0:
-            length = joysticks[ID].get_numbuttons()
-            if self.buttonnum < length and self.buttonnum >= 0:
-                self.state = joysticks[ID].get_button(self.buttonnum)
+    def UpdateSelf(self):
+        if self.controller.gamepad:
+            if len(self.controller.buttondict) > 0:
+                if self.buttonnum in self.controller.buttondict:
+                    self.state = self.controller.gamepad.get_button(self.buttonnum)
+            else:
+                self.state = 0
         else:
             self.state = 0
         if self.state == 0:
@@ -55,18 +56,21 @@ class TriggerAxis():
     bar = image.load(barimage)
     paddle = image.load(paddleimage)
     horizontal = False
-    def __init__(self, x =-1, y = -1, axis = -1):
+    def __init__(self, x =-1, y = -1, axis = -1, controller=False):
             self.x = x
             self.y = y
             self.ymod = -1
             self.axis = axis
             self.axisstate = 0
+            self.controller = controller
 
-    def UpdateSelf(self, ID):
-        if len(joysticks) > 0:
-            length = joysticks[ID].get_numaxes()
-            if self.axis < length:
-                self.axisstate = joysticks[ID].get_axis(self.axis)
+    def UpdateSelf(self):
+        if self.controller.gamepad:
+            if len(self.controller.axisdict) >= 0:
+                if self.axis in self.controller.axisdict:
+                    self.axisstate = self.controller.gamepad.get_axis(self.axis)
+            else:
+                self.axisstate = 0
         else:
             self.axisstate = 0
         self.ymod = abs(-1 - self.axisstate)/2
@@ -97,7 +101,7 @@ class Stick():
     stickpressed = image.load(pressed)
     rotate = 0
 
-    def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1):
+    def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1, controller=False):
         self.x = x
         self.y = y
         self.vertaxis = vertaxis
@@ -109,12 +113,12 @@ class Stick():
         self.buttonnum = buttonnum
         self.image = self.stickunpressed
         self.state = False
-    def UpdateSelf(self, ID):
+        self.controller = controller
+    def UpdateSelf(self):
         if(self.buttonnum >= 0):
-            if len(joysticks) > 0:
-                length = joysticks[ID].get_numbuttons()
-                if self.buttonnum < length:
-                    self.state = joysticks[ID].get_button(self.buttonnum)
+            if self.controller.gamepad:
+                if self.buttonnum < self.controller.gamepad.get_numbuttons():
+                        self.state = self.controller.gamepad.get_button(self.buttonnum)
             else:
                 self.state = 0
         else:
@@ -129,18 +133,18 @@ class Stick():
                 action = True
             else:
                 action = False
-        if len(joysticks) > 0:
-            length = joysticks[ID].get_numaxes()
-            if self.vertaxis < length and self.vertaxis >= 0:
-                self.vertstate = joysticks[ID].get_axis(self.vertaxis)
-            else:
-                self.vertstate = 0
-            self.vertmod = 13*self.vertstate
-
-            if self.horaxis < length and self.horaxis >= 0:
-                self.horstate = joysticks[ID].get_axis(self.horaxis)
-            else:
-                self.horstate = 0
+        if self.controller.gamepad:
+            if self.vertaxis >= 0:
+                if self.vertaxis < self.controller.gamepad.get_numaxes():
+                    self.vertstate = self.controller.gamepad.get_axis(self.vertaxis)
+                else:
+                    self.vertstate = 0
+                self.vertmod = 13*self.vertstate
+            if self.horaxis >= 0:
+                if self.horaxis < self.controller.gamepad.get_numaxes():
+                    self.horstate = self.controller.gamepad.get_axis(self.horaxis)
+                else:
+                    self.horstate = 0
             self.hormod = 13*self.horstate
         return action
 
@@ -175,18 +179,18 @@ class Stick():
         axis = []
 
         if self.vertaxis >= 0:
-            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1]), self.vertaxis)
+            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1]), self.vertaxis, self.controller)
             axisadd.Rotate()
             axis.append(axisadd)
 
         if self.horaxis >= 0:
-            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1] * 2), self.horaxis)
+            axisadd = TriggerAxis(self.x, self.y - (self.stickunpressed.get_rect().bottomright[1] * 2), self.horaxis, self.controller)
             axisadd.Rotate()
             axis.append(axisadd)
 
         droplist.append(axis)
         if self.buttonnum >= 0:
-            buttonadd = Button(self.buttonnum, self.x, (self.y - self.stickunpressed.get_rect().bottomright[1] * 3))
+            buttonadd = Button(self.buttonnum, self.x, (self.y - self.stickunpressed.get_rect().bottomright[1] * 3), self.controller)
             droplist.append(buttonadd)
 
         self.vertaxis = -1
@@ -206,7 +210,7 @@ class Hat():
     unpressedimage= image.load(unpressed)
     stateimage = unpressedimage
 
-    def __init__(self, hatnum = -1, x = -1, y = -1):
+    def __init__(self, hatnum = -1, x = -1, y = -1, controller = False):
         self.hatnumber = hatnum
         # x and y will be the top left coordinate for the background
         self.x = x
@@ -217,7 +221,7 @@ class Hat():
         self.centery = self.backgroundrect[3]/2
         self.state = (0,0)
 
-    def UpdateSelf(self,ID):
+    def UpdateSelf(self):
         action = False
         if (self.hatnumber >= 0):
             if len(joysticks) > 0:
