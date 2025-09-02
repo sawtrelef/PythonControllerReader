@@ -4,7 +4,16 @@ from joystickstuff import Button, TriggerAxis, Stick, Hat
 from GenericController import GenericController
 from ClickableOptionButton import ClickableOptionButton
 
-
+pygame.init()
+joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+font = pygame.font.Font('Zou.ttf', 32)
+background = pygame.image.load("assets/Background.png")
+rect = background.get_rect()
+x = int(rect.bottomright[0])
+y = int(rect.bottomright[1])
+pygame.display.set_caption('Controller Input Visualizer')
+display = pygame.display.set_mode((x,y))
+clock = pygame.time.Clock()
 
 class APMCounter():
     value = 0
@@ -34,7 +43,7 @@ def load(filename = ""):
     file = open(filename, 'r')
 
     ## generates a list object that holds each line as a string
-    #Current load order is buttons first, then axis, then sticks
+    # Current load order is buttons first, then axis, then sticks
     lines = file.readlines()
     bookmarks = []
     length = len(lines)
@@ -44,8 +53,8 @@ def load(filename = ""):
         if lines[i][0] == 'N':
             bookmarks.append(i)
 
-    buttonlist = []
-    for i in range(bookmarks[0],bookmarks[1]):
+    buttondict = {}
+    for i in range(bookmarks[0], bookmarks[1]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
             lines[i] = lines[i].removesuffix(')')
@@ -56,15 +65,15 @@ def load(filename = ""):
             offimage = str(values[3])
             onimage = str(values[4])
             rotation = int(values[5])
-            addbutton = Button(buttonnum,xpos,ypos)
+            addbutton = Button(buttonnum, xpos, ypos)
             addbutton.unpressed = offimage
             addbutton.pressed = onimage
             addbutton.rotate = rotation
             addbutton.load()
-            buttonlist.append(addbutton)
+            buttondict[buttonnum] = addbutton
 
-    axislist = []
-    for i in range(bookmarks[1],bookmarks[2]):
+    axisdict = {}
+    for i in range(bookmarks[1], bookmarks[2]):
         if lines[i][0] == '(':
             lines[i] = lines[i].removeprefix('(')
             lines[i] = lines[i].removesuffix(')')
@@ -84,7 +93,7 @@ def load(filename = ""):
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
             addtrigger.load()
-            axislist.append(addtrigger)
+            axisdict[axisnum] = addtrigger
 
     sticklist = []
     for i in range(bookmarks[2], bookmarks[3]):
@@ -101,14 +110,14 @@ def load(filename = ""):
             buttonnumber = int(values[2])
             onimage = values[5]
             offimage = values[6]
-            #stick creation data format
-            #(xpos,ypos,vertaxis, horizontalaxis, buttonnumber)
-            addstick = Stick(xpos,ypos,vertaxis,horizontalaxis,buttonnumber)
+            # stick creation data format
+            # (xpos,ypos,vertaxis, horizontalaxis, buttonnumber)
+            addstick = Stick(xpos, ypos, vertaxis, horizontalaxis, buttonnumber)
             addstick.pressed = onimage
             addstick.unpressed = offimage
             addstick.load()
             sticklist.append(addstick)
-    hatlist = []
+    hatdict = {}
     for i in range(bookmarks[3], length):
         if lines[i][0] == '(':
             # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
@@ -129,40 +138,25 @@ def load(filename = ""):
             addhat.background = backgroundimage
             addhat.rotate = rotation
             addhat.load()
-            hatlist.append(addhat)
+            hatdict[hatnum] = addhat
 
     if controller:
-        Controller = GenericController(controller.ID)
-        Controller.buttonlist = buttonlist
-        Controller.axislist = axislist
-        Controller.sticklist = sticklist
-        Controller.hatlist = hatlist
+        Controller = GenericController(controller.gamepad)
     else:
-        Controller = GenericController(0)
-        Controller.buttonlist = buttonlist
-        Controller.axislist = axislist
-        Controller.sticklist = sticklist
-        Controller.hatlist = hatlist
+        Controller = GenericController(joysticks[0])
+    Controller.buttondict = buttondict
+    Controller.axisdict = axisdict
+    Controller.sticklist = sticklist
+    Controller.hatdict = hatdict
     file.close()
+    Controller.resetListItems()
     if Controller:
         return Controller
     return False
 
 controller = load("layout.txt")
+controller.resetListItems()
 counter = APMCounter(controller)
-pygame.init()
-
-font = pygame.font.Font('Zou.ttf', 32)
-background = pygame.image.load("assets/Background.png")
-rect = background.get_rect()
-x = int(rect.bottomright[0])
-y = int(rect.bottomright[1])
-pygame.display.set_caption('Controller Input Visualizer')
-display = pygame.display.set_mode((x,y))
-clock = pygame.time.Clock()
-#font = pygame.font.Font('c:/Windows/Fonts/Arial.ttf', 24)
-
-
 
 def Reset():
         counter.resetCounter()
