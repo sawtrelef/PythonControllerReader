@@ -37,7 +37,10 @@ words = "PRESS BUTTON"
 text = font.render(words, True, (200, 74, 220))
 
 drawlist = []
-joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+joysticks = {}
+for i in range (pygame.joystick.get_count()):
+    joysticks[i] = pygame.joystick.Joystick(i)
+
 ActiveStick = False
 currentAction = ActionContainer()
 
@@ -539,16 +542,37 @@ while not done:
                 ActiveStick = LoadGenericController(joysticks[event.instance_id],event.instance_id)
                 name = ActiveStick.gamepad.get_name()
                 stickcollidables()
+                words = ""
+                text = font.render(words, True, (200, 74, 220))
             if ActiveStick.gamepad == False:
                 ActiveStick.gamepad = joysticks[event.instance_id]
                 ActiveStick.resetListItems()
                 stickcollidables()
+                words = ""
+                name = ActiveStick.gamepad.get_name()
+                text = font.render(words, True, (200, 74, 220))
 
         if event.type == pygame.JOYDEVICEADDED:
             # This event will be generated when the program starts for every
             # joystick, filling up the list without needing to create them manually.
             joy = pygame.joystick.Joystick(event.device_index)
-            joysticks[joy.get_instance_id()] = joy
+            ID = joy.get_instance_id()
+            joysticks[ID] = joy
+
+        if event.type == pygame.JOYDEVICEREMOVED:
+            # This event will be generated when the program starts for every
+            # joystick, filling up the list without needing to create them manually.
+            joy = event.instance_id
+            #ID = ActiveStick.gamepad.get_instance_id()
+            if ActiveStick:
+                if ActiveStick.gamepad:
+                    if ActiveStick.gamepad.get_instance_id() == joy:
+                        ActiveStick.gamepad = False
+                        words = "PRESS BUTTON"
+                        text = font.render(words, True, (200, 74, 220))
+            del joysticks[joy]
+
+
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
@@ -563,8 +587,10 @@ while not done:
                         check = collided.doclicked()
                         if check.__class__ == GenericController:
                             ActiveStick = check
-                            if len(joysticks) > 0:
-                                name = joysticks[check.ID].get_name()
+                            if check.gamepad:
+                                name = check.gamepad.get_name()
+                                words = ""
+                                text = font.render(words, True, (200, 74, 220))
                             else:
                                 name = 'unknown'
                             stickcollidables()

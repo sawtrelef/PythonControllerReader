@@ -87,7 +87,7 @@ class GenericController():
     actioncount = 0
     timecount = 0
     gamepad = False
-    def __init__(self,joystick, ID = 0):
+    def __init__(self,joystick, ID = -1):
         offset = 0
         self.ID = ID
         self.gamepad = joystick

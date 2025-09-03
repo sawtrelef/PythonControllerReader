@@ -5,14 +5,16 @@ from GenericController import GenericController
 from ClickableOptionButton import ClickableOptionButton
 
 pygame.init()
-joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+joysticks = {}
+for i in range (pygame.joystick.get_count()):
+    joysticks[i] = pygame.joystick.Joystick(i)
 font = pygame.font.Font('Zou.ttf', 32)
 background = pygame.image.load("assets/Background.png")
 rect = background.get_rect()
 x = int(rect.bottomright[0])
 y = int(rect.bottomright[1])
 pygame.display.set_caption('Controller Input Visualizer')
-display = pygame.display.set_mode((x,y))
+display = pygame.display.set_mode((x,y+24))
 clock = pygame.time.Clock()
 
 class APMCounter():
@@ -143,7 +145,10 @@ def load(filename = ""):
     if controller:
         Controller = GenericController(controller.gamepad)
     else:
-        Controller = GenericController(joysticks[0])
+        if(len(joysticks)>0):
+            Controller = GenericController(joysticks[0])
+        else:
+            Controller = GenericController(False)
     Controller.buttondict = buttondict
     Controller.axisdict = axisdict
     Controller.sticklist = sticklist
@@ -168,12 +173,12 @@ def ToggleLines():
 
 resetimage = pygame.image.load('./assets/resetbutton.png')
 resetrect = resetimage.get_rect()
-ResetButton = ClickableOptionButton(1, y-resetrect.bottomright[1]-1,resetimage)
+ResetButton = ClickableOptionButton(1, y-resetrect.bottomright[1]-1+24,resetimage)
 ResetButton.doclicked = Reset
 
 linetoggleimage = pygame.image.load('./assets/linesbutton.png')
 linerect = linetoggleimage.get_rect()
-LineToggleButton = ClickableOptionButton(x-linerect.bottomright[0], y - linerect.bottomright[1]-1,linetoggleimage)
+LineToggleButton = ClickableOptionButton(x-linerect.bottomright[0], y - linerect.bottomright[1]-1+24,linetoggleimage)
 LineToggleButton.doclicked = ToggleLines
 
 collidables = []
@@ -210,6 +215,29 @@ while not done:
                         collided = item
                         if collided.__class__ == ClickableOptionButton:
                             check = collided.doclicked()
+
+        if event.type == pygame.JOYDEVICEADDED:
+            # This event will be generated when the program starts for every
+            # joystick, filling up the list without needing to create them manually.
+            joy = pygame.joystick.Joystick(event.device_index)
+            ID = joy.get_instance_id()
+            joysticks[ID] = joy
+            if controller:
+                if controller.gamepad == False:
+                    controller.gamepad = joysticks[ID]
+
+        if event.type == pygame.JOYDEVICEREMOVED:
+            # This event will be generated when the program starts for every
+            # joystick, filling up the list without needing to create them manually.
+            joy = event.instance_id
+            #ID = ActiveStick.gamepad.get_instance_id()
+            if controller:
+                if controller.gamepad:
+                    if controller.gamepad.get_instance_id() == joy:
+                        controller.gamepad = False
+                        words = "PRESS BUTTON"
+                        text = font.render(words, True, (200, 74, 220))
+            del joysticks[joy]
     if done:
 
         break
