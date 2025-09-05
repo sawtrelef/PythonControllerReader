@@ -34,6 +34,7 @@ clock = pygame.time.Clock()
 
 done = False
 words = "PRESS BUTTON"
+name = ""
 text = font.render(words, True, (200, 74, 220))
 
 drawlist = []
@@ -190,7 +191,7 @@ def load(filename = ""):
     if filename == "":
         filename = "layout.txt"
     file = open(filename, 'r')
-    collidables = [SaveButton, LoadButton]
+    collidables = [SaveButton, LoadButton, ReloadButton]
 
     ## generates a list object that holds each line as a string
     #Current load order is buttons first, then axis, then sticks
@@ -312,19 +313,34 @@ def makeStick():
             emptystick.controller = ActiveStick
     return emptystick
 
+def reloadController():
+    if ActiveStick:
+        if ActiveStick.gamepad:
+            stick = LoadGenericController(ActiveStick.gamepad)
+    else:
+        stick = LoadGenericController()
+    return stick
+
+
 saveimage = pygame.image.load('assets/savebutton.png')
 loadimage = pygame.image.load('assets/loadbutton.png')
 makestickimage = pygame.image.load('assets/makestickbutton.png')
+reloadimage = pygame.image.load('assets/reloadbutton.png')
 
 SaveButton = ClickableOptionButton((x + width)/2-(saveimage.get_rect().bottomright[0])/2,y + height + 20,saveimage)
 LoadButton = ClickableOptionButton(SaveButton.rect.x + 145, SaveButton.rect.y,loadimage)
+ReloadButton = ClickableOptionButton(0,0,reloadimage)
+
+
 MakeStickButton = ClickableOptionButton(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
 SaveButton.doclicked = save
 LoadButton.doclicked = load
 MakeStickButton.doclicked = makeStick
+ReloadButton.doclicked = reloadController
 
 collidables.append(SaveButton)
 collidables.append(LoadButton)
+collidables.append(ReloadButton)
 collidables.append(MakeStickButton)
 
 def changeButtonImage():
@@ -585,7 +601,7 @@ while not done:
                     collided = item
                     if collided.__class__ == ClickableOptionButton:
                         check = collided.doclicked()
-                        if check.__class__ == GenericController:
+                        if check.__class__ == GenericController or check.__class__ == LoadGenericController:
                             ActiveStick = check
                             if check.gamepad:
                                 name = check.gamepad.get_name()
@@ -638,6 +654,7 @@ while not done:
     SaveButton.draw(display)
     LoadButton.draw(display)
     MakeStickButton.draw(display)
+    ReloadButton.draw(display)
     if widgetCell.holding:
         widgetCell.draw(display)
 

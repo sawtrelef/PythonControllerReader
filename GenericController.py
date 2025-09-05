@@ -10,24 +10,25 @@ class LoadGenericController():
     ID = False
     actioncount = 0
     timecount = 0
-    def __init__(self, joystick, ID = 0):
+    def __init__(self, joystick = False, ID = 0):
         offset = 0
         #self.ID = ID
         self.gamepad = joystick
-        for i in range(self.gamepad.get_numbuttons()):
-            self.buttondict[i] = Button(i,40, 100+(i*20),self)
-        offset = 150 + (i*20)
+        if self.gamepad:
+            for i in range(self.gamepad.get_numbuttons()):
+                self.buttondict[i] = Button(i,40, 100+(i*20),self)
+            offset = 150 + (i*20)
 
-        for i in range(self.gamepad.get_numaxes()):
-            self.axisdict[i] = (TriggerAxis(40, offset + (i*20), i, self))
+            for i in range(self.gamepad.get_numaxes()):
+                self.axisdict[i] = (TriggerAxis(40, offset + (i*20), i, self))
 
-        for item in self.axisdict:
-            self.axisdict[item].Rotate()
+            for item in self.axisdict:
+                self.axisdict[item].Rotate()
 
-        offset = 115
-        length = self.gamepad.get_numhats()
-        for i in range(length):
-            self.hatdict[i] = Hat(i, 70, offset + i*95, self)
+            offset = 115
+            length = self.gamepad.get_numhats()
+            for i in range(length):
+                self.hatdict[i] = Hat(i, 70, offset + i*95, self)
 
 
     def update(self):
@@ -87,7 +88,7 @@ class GenericController():
     actioncount = 0
     timecount = 0
     gamepad = False
-    def __init__(self,joystick, ID = -1):
+    def __init__(self,joystick = False, ID = -1):
         offset = 0
         self.ID = ID
         self.gamepad = joystick
