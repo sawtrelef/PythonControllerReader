@@ -114,6 +114,7 @@ class Stick():
         self.image = self.stickunpressed
         self.state = False
         self.controller = controller
+        self.rect = self.image.get_rect()
     def UpdateSelf(self):
         if(self.buttonnum >= 0):
             if self.controller.gamepad:
@@ -139,13 +140,13 @@ class Stick():
                     self.vertstate = self.controller.gamepad.get_axis(self.vertaxis)
                 else:
                     self.vertstate = 0
-                self.vertmod = 13*self.vertstate
+                self.vertmod = (self.rect.height/2)*self.vertstate
             if self.horaxis >= 0:
                 if self.horaxis < self.controller.gamepad.get_numaxes():
                     self.horstate = self.controller.gamepad.get_axis(self.horaxis)
                 else:
                     self.horstate = 0
-            self.hormod = 13*self.horstate
+            self.hormod = (self.rect.width/2)*self.horstate
         return action
 
     def draw(self, WINDOW):
@@ -201,7 +202,7 @@ class Stick():
 
 class Hat():
     background = './hats/hatbackground.png'
-    pressed = './hats/arrowpressed.png'
+    pressed = './hats/pressed.png'
     unpressed = './hats/unpressed.png'
     rotate = 0
     rotatemod = 0
@@ -220,18 +221,30 @@ class Hat():
         self.backgroundcenterx = self.backgroundrect[2]/2
         self.centery = self.backgroundrect[3]/2
         self.state = (0,0)
+        self.controller = controller
+
+    #if (self.buttonnum >= 0):
+       # if self.controller.gamepad:
+           # if self.buttonnum < self.controller.gamepad.get_numbuttons():
+              #  self.state = self.controller.gamepad.get_button(self.buttonnum)
+      #  else:
+           # self.state = 0
+  #  else:
+       # self.state == 0
+
 
     def UpdateSelf(self):
         action = False
         if (self.hatnumber >= 0):
-            if len(joysticks) > 0:
-                length = joysticks[ID].get_numhats()
-                if self.hatnumber < length and self.hatnumber > -1:
-                    if self.state != joysticks[ID].get_hat(self.hatnumber) and self.state != (0,0):
-                        action = True
-                    self.state = joysticks[ID].get_hat(self.hatnumber)
-                else:
-                    self.state = (0,0)
+            if self.controller:
+                if self.controller.gamepad:
+                    length = self.controller.gamepad.get_numhats()
+                    if self.hatnumber < length and self.hatnumber > -1:
+                        if self.state != self.controller.gamepad.get_hat(self.hatnumber) and self.state != (0,0):
+                            action = True
+                        self.state = self.controller.gamepad.get_hat(self.hatnumber)
+                    else:
+                        self.state = (0,0)
         else:
             self.state == (0,0)
 
@@ -243,22 +256,32 @@ class Hat():
         #self.imagex = (self.state[0] * self.staterect[2]) + self.backgroundrect[2]/2 - self.staterect[3]/2 + self.x+1
         #self.imagey = (-self.state[1] * self.staterect[3]) - self.staterect[3]/2 + self.backgroundrect[3]/2 + self.y
         self.rotatemod = 0
+        xstate = self.state[0]
+        ystate = self.state[1]
+        staterectx = self.staterect[2]
+        staterecty = self.staterect[3]
+        backgroundrectx = self.backgroundrect[2]
+        backgroundrecty = self.backgroundrect[3]
         if self.state == (0, 0):
             self.stateimage = self.unpressedimage
         else:
             self.stateimage = self.pressedimage
-            if self.state[0] != 0:
-                self.rotatemod = self.rotatemod - (90*self.state[0])
-            if self.state[1] != 0:
+            if xstate != 0:
+                self.rotatemod = self.rotatemod - (90*xstate)
+            if ystate != 0:
                 if self.rotatemod !=0:
-                    self.rotatemod = self.rotatemod - (45*self.state[1]*-self.state[0])
-                elif self.state[1] == -1:
+                    self.rotatemod = self.rotatemod - (45*ystate*-xstate)
+                elif ystate == -1:
                     self.rotatemod = 180
 
         self.staterect = self.stateimage.get_rect()
-        self.imagex = (self.state[0] * self.staterect[2]) + self.backgroundrect[2] / 2 - self.staterect[
-            3] / 2 + self.x + 1
-        self.imagey = (-self.state[1] * self.staterect[3]) - self.staterect[3] / 2 + self.backgroundrect[3] / 2 + self.y
+
+        if xstate != 0 and ystate != 0:
+            self.imagex = xstate*staterectx + backgroundrectx / 2 - staterectx/2 + self.x + 1 - staterectx/4
+            self.imagey = (-ystate * staterecty) - staterecty / 2 + backgroundrecty / 2 + self.y - staterecty/4
+        else:
+            self.imagex = (xstate * staterectx) + backgroundrectx / 2 - staterectx / 2 + self.x + 1
+            self.imagey = (-ystate * staterecty) - staterecty / 2 + backgroundrecty / 2 + self.y
         self.stateimage = transform.rotate(self.stateimage, self.rotate+self.rotatemod)
 
     def draw(self,WINDOW):
@@ -267,5 +290,7 @@ class Hat():
 
     def load(self):
         self.backgroundimage = transform.rotate(image.load(self.background), self.rotate)
+        self.pressedimage = image.load(self.pressed)
+        self.unpressedimage = image.load(self.unpressed)
         self.updateImage()
 

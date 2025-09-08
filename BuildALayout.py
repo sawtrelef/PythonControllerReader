@@ -98,6 +98,14 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory + file)
             self.buttonlist = AxisModList
+        if self.holding.__class__ == Hat:
+            self.changelist = []
+            directory = './hats/'
+            filelist = listdir(directory)
+            for file in filelist:
+                if 'unpressed' in file:
+                    self.changelist.append(directory + file)
+            self.buttonlist = HatModList
         templist = []
         for item in collidables:
             templist.append(item)
@@ -317,6 +325,8 @@ def reloadController():
     if ActiveStick:
         if ActiveStick.gamepad:
             stick = LoadGenericController(ActiveStick.gamepad)
+        else:
+            stick = LoadGenericController()
     else:
         stick = LoadGenericController()
     return stick
@@ -345,7 +355,7 @@ collidables.append(MakeStickButton)
 
 def changeButtonImage():
     morph = widgetCell.holding
-    if morph.__class__ == Button or morph.__class__ == Stick:
+    if morph.__class__ == Button or morph.__class__ == Stick or morph.__class__ == Hat:
         unpressed = morph.unpressed
         num = widgetCell.changelist.index(unpressed)
         if num + 1 < len(widgetCell.changelist):
@@ -455,7 +465,7 @@ def changevertclicked():
 changevertbutton.doclicked = changevertclicked
 
 changeButtonImage = pygame.image.load('assets/addbutton.png')
-changeButton = ClickableOptionButton(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
+changeStickButton = ClickableOptionButton(changevertbutton.rect.x-12, changehorizontalbutton.rect.y-50,changeButtonImage)
 def changestickbutton(self):
     numswap = self.trigger.buttonnum
     if self.Core.buttonnum >= 0:
@@ -477,10 +487,10 @@ def changebuttonclicked():
     action = ModAction(widgetCell.holding, Button(),"CLICK DESIRED BUTTON")
     ModAction.doaction = changestickbutton
     return action
-changeButton.doclicked = changebuttonclicked
+changeStickButton.doclicked = changebuttonclicked
 
 DropSettingsImage = pygame.image.load('assets/dropsettings.png')
-detachAllButton = ClickableOptionButton(changeButton.rect.x - DropSettingsImage.get_rect().bottomright[0]-10, changeButton.rect.y, DropSettingsImage)
+detachAllButton = ClickableOptionButton(changeStickButton.rect.x - DropSettingsImage.get_rect().bottomright[0]-10, changeStickButton.rect.y, DropSettingsImage)
 def detachAllclicked():
     if widgetCell.holding:
         itemstoadd = widgetCell.holding.dropItems()
@@ -502,11 +512,15 @@ StickModList.append(changebutton)
 StickModList.append(rotatebutton)
 StickModList.append(changehorizontalbutton)
 StickModList.append(changevertbutton)
-StickModList.append(changeButton)
+StickModList.append(changeStickButton)
 StickModList.append(detachAllButton)
 
 AxisModList = []
 AxisModList.append(rotatebutton)
+
+HatModList = []
+HatModList.append(changebutton)
+
 
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
@@ -561,12 +575,20 @@ while not done:
                 words = ""
                 text = font.render(words, True, (200, 74, 220))
             if ActiveStick.gamepad == False:
-                ActiveStick.gamepad = joysticks[event.instance_id]
-                ActiveStick.resetListItems()
-                stickcollidables()
-                words = ""
-                name = ActiveStick.gamepad.get_name()
-                text = font.render(words, True, (200, 74, 220))
+                if name == joysticks[event.instance_id].get_name():
+                    ActiveStick.gamepad = joysticks[event.instance_id]
+                    ActiveStick.resetListItems()
+                    stickcollidables()
+                    words = ""
+                    name = ActiveStick.gamepad.get_name()
+                    text = font.render(words, True, (200, 74, 220))
+                else:
+                    ActiveStick = LoadGenericController(joysticks[event.instance_id], event.instance_id)
+                    name = ActiveStick.gamepad.get_name()
+                    stickcollidables()
+                    words = ""
+                    text = font.render(words, True, (200, 74, 220))
+
 
         if event.type == pygame.JOYDEVICEADDED:
             # This event will be generated when the program starts for every
