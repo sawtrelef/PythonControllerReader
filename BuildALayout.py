@@ -152,7 +152,9 @@ def save():
             barim = str(axisdict[axis].barimage)
             paddleim = str(axisdict[axis].paddleimage)
             flip = str(axisdict[axis].horizontal)
-            axistext = "({},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip)
+            mode = str(axisdict[axis].mode)
+            rotate = str(axisdict[axis].rotate)
+            axistext = "({},{},{},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip,mode,rotate)
             print(axistext)
             file.write(axistext)
         sticklist = ActiveStick.sticklist
@@ -243,11 +245,13 @@ def load(filename = ""):
             triggerimage = str(values[3])
             paddleimage = str(values[4])
             flipbool = values[5]
+            mode = str(values[6])
+            rotate = int(values[7])
             if flipbool == 'True':
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(xpos, ypos, axisnum)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode,rotate)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
@@ -515,8 +519,24 @@ StickModList.append(changevertbutton)
 StickModList.append(changeStickButton)
 StickModList.append(detachAllButton)
 
+changeModeImage = pygame.image.load('assets/modebutton.png')
+changeModeButton = ClickableOptionButton(rotatebutton.rect.x-146, rotatebutton.rect.y,changeModeImage)
+def changeMode():
+    morph = widgetCell.holding
+    if morph.__class__ == TriggerAxis:
+        if morph.mode == 'axis':
+            morph.mode = 'button'
+        elif morph.mode == 'button':
+            morph.mode = 'axis'
+        morph.ModeAdjust()
+        morph.load()
+
+    stickcollidables()
+changeModeButton.doclicked = changeMode
+
 AxisModList = []
 AxisModList.append(rotatebutton)
+AxisModList.append(changeModeButton)
 
 HatModList = []
 HatModList.append(changebutton)
@@ -540,12 +560,21 @@ def stickcollidables():
         if ActiveStick.buttondict[item] not in collidables:
             collidables.append(ActiveStick.buttondict[item])
     for item in ActiveStick.axisdict:
-        rectangle1 = ActiveStick.axisdict[item].bar.get_rect()
-        ActiveStick.axisdict[item].rect = rectangle1
-        ActiveStick.axisdict[item].rect.x = ActiveStick.axisdict[item].x
-        ActiveStick.axisdict[item].rect.y = ActiveStick.axisdict[item].y
-        if ActiveStick.axisdict[item] not in collidables:
-            collidables.append(ActiveStick.axisdict[item])
+        if ActiveStick.axisdict[item].mode == 'axis':
+            rectangle1 = ActiveStick.axisdict[item].bar.get_rect()
+            ActiveStick.axisdict[item].rect = rectangle1
+            ActiveStick.axisdict[item].rect.x = ActiveStick.axisdict[item].x
+            ActiveStick.axisdict[item].rect.y = ActiveStick.axisdict[item].y
+            if ActiveStick.axisdict[item] not in collidables:
+                collidables.append(ActiveStick.axisdict[item])
+        elif ActiveStick.axisdict[item].mode == 'button':
+            rectangle = ActiveStick.axisdict[item].unpressedimage.get_rect()
+            ActiveStick.axisdict[item].rect = rectangle
+            ActiveStick.axisdict[item].rect.x = ActiveStick.axisdict[item].x
+            ActiveStick.axisdict[item].rect.y = ActiveStick.axisdict[item].y
+            if ActiveStick.axisdict[item] not in collidables:
+                collidables.append(ActiveStick.axisdict[item])
+
     for item in ActiveStick.sticklist:
         rectangle2 = item.stickunpressed.get_rect()
         item.rect = rectangle2

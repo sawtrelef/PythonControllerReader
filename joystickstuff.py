@@ -53,16 +53,29 @@ class Button():
 class TriggerAxis():
     barimage = "./Axis/triggerbar.png"
     paddleimage = "./Axis/paddlebar.png"
+    pressed = "./Axis/buttons/pressed.png"
+    unpressed= "./Axis/buttons/unpressed.png"
+    pressedimage = image.load(pressed)
+    unpressedimage = image.load(unpressed)
+    button = unpressedimage
     bar = image.load(barimage)
     paddle = image.load(paddleimage)
     horizontal = False
-    def __init__(self, x =-1, y = -1, axis = -1, controller=False):
+    rotate = 0
+    def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='button', rotate = 0):
             self.x = x
             self.y = y
             self.ymod = -1
             self.axis = axis
             self.axisstate = 0
             self.controller = controller
+            self.activestate = False
+            self.mode = mode
+            self.modedict = {'axis':self.drawAxisMode, 'button':self.drawButtonMode}
+            self.loaddict = {'axis':self.loadAxisMode, 'button':self.loadButtonMode}
+            self.draw = self.modedict[mode]
+            self.load = self.loaddict[mode]
+            self.rotate = rotate
 
     def UpdateSelf(self):
         if self.controller.gamepad:
@@ -75,7 +88,21 @@ class TriggerAxis():
             self.axisstate = 0
         self.ymod = abs(-1 - self.axisstate)/2
 
+        if self.activestate == False:
+            if self.ymod > .1:
+                self.activestate = True
+                return True
+            return False
+
+        if self.ymod < .1:
+            self.activestate = False
+        return False
+
+
     def draw(self, WINDOW):
+        return False
+
+    def drawAxisMode(self, WINDOW):
         if self.horizontal:
             WINDOW.blit(self.bar, (self.x, self.y))
             WINDOW.blit(self.paddle, (self.x + (100 * self.ymod), self.y - 4))
@@ -83,16 +110,39 @@ class TriggerAxis():
             WINDOW.blit(self.bar, (self.x, self.y))
             WINDOW.blit(self.paddle, (self.x - 4, (self.y + (100 * self.ymod))))
 
+    def drawButtonMode(self, WINDOW):
+        if self.activestate == False:
+            if self.button != self.unpressedimage:
+                self.button = self.unpressedimage
+        else:
+            if self.button != self.pressedimage:
+                self.button = self.pressedimage
+
+        WINDOW.blit(self.button, (self.x,self.y))
+
     def load(self):
+        return
+
+    def loadAxisMode(self):
         self.bar = image.load(self.barimage)
         self.paddle = image.load(self.paddleimage)
         if self.horizontal:
             self.bar = transform.rotate(self.bar, 90)
-            self.paddle = transform.rotate(self.paddle,90)
+            self.paddle = transform.rotate(self.paddle, 90)
+
+    def loadButtonMode(self):
+        self.unpressedimage = image.load(self.unpressed)
+        self.pressedimage = image.load(self.pressed)
+        self.pressedimage = transform.rotate(self.pressedimage, self.rotate)
+        self.unpressedimage = transform.rotate(self.unpressedimage, self.rotate)
 
     def Rotate(self):
        self.horizontal = not self.horizontal
        self.load()
+
+    def ModeAdjust(self):
+        self.draw = self.modedict[self.mode]
+        self.load = self.loaddict[self.mode]
 
 class Stick():
     pressed = "./sticks/stickpressed.png"

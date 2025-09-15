@@ -86,11 +86,13 @@ def load(filename = ""):
             triggerimage = str(values[3])
             paddleimage = str(values[4])
             flipbool = values[5]
+            mode = str(values[6])
+            rotate = int(values[7])
             if flipbool == 'True':
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(xpos, ypos, axisnum)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode, rotate)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
