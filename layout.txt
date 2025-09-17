@@ -18,6 +18,6 @@ Number of Independent Axis: 2
 (4,18,5,./Axis/triggerbar.png,./Axis/paddlebar.png,False,axis,0)
 (5,378,5,./Axis/triggerbar.png,./Axis/paddlebar.png,False,axis,0)
 Number of Sticks: 2
-(1,0,7,147,185,./sticks/stickpressed.png,./sticks/stickunpressed.png)
-(3,2,8,249,185,./sticks/stickpressed.png,./sticks/stickunpressed.png)
+(1,0,7,147,185,./sticks/smilepressed.png,./sticks/smileunpressed.png)
+(3,2,8,249,185,./sticks/smilepressed.png,./sticks/smileunpressed.png)
 Number of Hats: 0

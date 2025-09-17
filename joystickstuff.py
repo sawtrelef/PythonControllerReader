@@ -62,7 +62,7 @@ class TriggerAxis():
     paddle = image.load(paddleimage)
     horizontal = False
     rotate = 0
-    def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='button', rotate = 0):
+    def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='axis', rotate = 0):
             self.x = x
             self.y = y
             self.ymod = -1

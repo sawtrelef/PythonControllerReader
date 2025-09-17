@@ -18,23 +18,36 @@ display = pygame.display.set_mode((x,y+24))
 clock = pygame.time.Clock()
 
 class APMCounter():
-    value = 0
+    valuelist = []
     timepassed = 0
-    actionperminute = 0
+    actionperlastminute = 0
+    averageamp = 0
     def __init__(self,target):
         self.ValueTarget = target
+        self.text = font.render('APLM: ' + str(self.actionperlastminute), True, (149, 75, 220))
+        rect = self.text.get_rect()
+        self.width = rect.width
+        self.height = rect.height
 
     def update(self):
-        self.value = self.ValueTarget.getcount()
+        num = self.ValueTarget.getcount()
+        self.valuelist.append(num)
         self.timepassed = self.timepassed + 1
-        self.actionperminute = int(self.value / (self.timepassed / 3600))
+        if self.timepassed > 3600:
+            self.valuelist.pop(0)
+        length = len(self.valuelist)
+        num1 = self.valuelist[length-1]
+        num2 = self.valuelist[0]
+        value = num1 - num2
+        self.actionperlastminute = value
+        self.averageapm = int(self.valuelist[length-1]/(self.timepassed/3600))
 
     def draw(self, WINDOW):
-        text = font.render('APM : ' + str(self.actionperminute), True, (149, 75, 220))
-        WINDOW.blit(text, (int(x/2)-45, y-35))
+        self.text = font.render('APLM: ' + str(self.actionperlastminute), True, (149, 75, 220))
+        WINDOW.blit(self.text, (int(x/2)-int(self.width/2), y-self.height))
 
     def resetCounter(self):
-        self.actionperminute = 0
+        self.valuelist = []
         self.timepassed = 0
 
 controller = False
