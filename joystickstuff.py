@@ -162,20 +162,22 @@ class Stick():
         self.hormod = 0
         self.buttonnum = buttonnum
         self.image = self.stickunpressed
-        self.state = False
+        self.pressedstate = False
         self.controller = controller
         self.rect = self.image.get_rect()
+        self.horactive = False
+        self.vertactive = False
     def UpdateSelf(self):
         if(self.buttonnum >= 0):
             if self.controller.gamepad:
                 if self.buttonnum < self.controller.gamepad.get_numbuttons():
-                        self.state = self.controller.gamepad.get_button(self.buttonnum)
+                        self.pressedstate = self.controller.gamepad.get_button(self.buttonnum)
             else:
-                self.state = 0
+                self.pressedstate = 0
         else:
-            self.state == 0
+            self.pressedstate == 0
         action = False
-        if self.state == 0:
+        if self.pressedstate == 0:
             self.image = self.stickunpressed
             action =  False
         else:
@@ -197,6 +199,24 @@ class Stick():
                 else:
                     self.horstate = 0
             self.hormod = (self.rect.width/2)*self.horstate
+
+        if self.horactive == False:
+            if abs(self.hormod) > 2:
+                self.horactive = True
+                self.controller.actioncount = self.controller.actioncount + 1
+
+
+        if abs(self.hormod) < 2:
+            self.horactive = False
+
+        if self.vertactive == False:
+            if abs(self.vertmod) > 2:
+                self.vertactive = True
+                self.controller.actioncount = self.controller.actioncount + 1
+
+        if abs(self.vertmod) < 2:
+            self.vertactive = False
+
         return action
 
     def draw(self, WINDOW):
