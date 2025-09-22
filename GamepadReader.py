@@ -8,7 +8,7 @@ pygame.init()
 joysticks = {}
 for i in range (pygame.joystick.get_count()):
     joysticks[i] = pygame.joystick.Joystick(i)
-font = pygame.font.Font('Zou.ttf', 32)
+font = pygame.font.Font('SuperMystery.ttf', 32)
 background = pygame.image.load("assets/Background.png")
 rect = background.get_rect()
 x = int(rect.bottomright[0])

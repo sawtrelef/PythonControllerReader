@@ -8,7 +8,7 @@ from ClickableOptionButton import ClickableOptionButton
 
 pygame.init()
 
-font = pygame.font.Font('Zou.ttf', 48)
+font = pygame.font.Font('SuperMystery.ttf', 48)
 
 pygame.display.set_caption('Build Your Controller Layout')
 workrectimage = pygame.image.load('assets/Background.png')
@@ -710,7 +710,7 @@ while not done:
         widgetCell.draw(display)
 
     if ActiveStick:
-        font = pygame.font.Font('Zou.ttf', 48)
+        font = pygame.font.Font('SuperMystery.ttf', 48)
         active = font.render(str(name).upper(),True,(40,200,60))
         display.blit(active,(20,60))
         ActiveStick.update()
@@ -719,7 +719,7 @@ while not done:
 
     if currentAction.hasAction() != False:
         actiontext = currentAction.action.text
-        font = pygame.font.Font('Zou.ttf', 24)
+        font = pygame.font.Font('SuperMystery.ttf', 24)
         active = font.render(actiontext,True,(20,20,230))
         display.blit(active,(175,120))
 
