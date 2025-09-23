@@ -47,6 +47,74 @@ currentAction = ActionContainer()
 
 collidables = []
 
+class FileBox():
+    rect = False
+    x = -1
+    y = -1
+    textitem = False
+    text = ""
+
+    def __init__(self, textitem,xpos,ypos,rect,text):
+        self.rect = rect
+        self.ypos = ypos
+        self.xpos = xpos
+        self.textitem = textitem
+        self.text = text
+
+    def doclicked(self):
+        dummy = load("./layouts/"+self.text)
+        return dummy
+
+
+
+class FileWindow():
+    xpos = 0
+    ypos = 0
+    height = 0
+    width = 0
+    state = False
+    itemdict = {}
+    FONT = pygame.font.Font('SuperMystery.ttf', 8)
+    def __init__(self, directory = False):
+        return
+
+    def UpdateSelf(self, directory = False, coords = ()):
+        self.height = 0
+        self.width = 0
+        self.x, self.y = coords[0], coords[1]
+        self.itemdict = {}
+        if directory:
+            filelist = listdir(directory)
+            buffer = 2
+            for item in filelist:
+                textbox = self.FONT.render(str(item),True,(75,200,200))
+                rect = textbox.get_rect()
+                addheight = rect.height
+                rect.x = self.x + 2
+                rect.y = self.y - addheight - buffer
+
+                box = FileBox(textbox,x,y,rect,str(item))
+                buffer = buffer + addheight + 1
+                width = rect.width
+                if width > self.width:
+                    self.width = width
+                self.itemdict[box] = rect
+
+            buffer = buffer + 2
+            self.height = buffer
+            self.width = self.width+4
+            self.state = True
+        return self.itemdict
+    def draw(self, WINDOW):
+        if self.state == True:
+            pygame.draw.rect(WINDOW,(75,75,175),(self.x,self.y-self.height,self.width,self.height))
+            for item in self.itemdict:
+                WINDOW.blit(item.textitem, item.rect)
+
+
+
+filewindow = FileWindow()
+
 class HoldingCell():
     def __init__(self):
         self.holding = False
@@ -317,6 +385,10 @@ def load(filename = ""):
         return Controller
     return False
 
+def LoadButtonDoClicked():
+    itemlist = filewindow.UpdateSelf("./layouts/",(position[0],position[1]))
+    return itemlist
+
 def makeStick():
     emptystick = Stick(MakeStickButton.rect.x + 145, MakeStickButton.rect.y)
     print(emptystick)
@@ -348,7 +420,7 @@ ReloadButton = ClickableOptionButton(0,0,reloadimage)
 
 MakeStickButton = ClickableOptionButton(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
 SaveButton.doclicked = save
-LoadButton.doclicked = load
+LoadButton.doclicked = LoadButtonDoClicked
 MakeStickButton.doclicked = makeStick
 ReloadButton.doclicked = reloadController
 
@@ -644,7 +716,8 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
             touch = False
-
+            filewindow.state = False
+            check = False
             for i in range(len(collidables)-1,-1,-1):
                 item = collidables[i]
                 touch = CollisionCheck(position, item.rect)
@@ -659,7 +732,7 @@ while not done:
                                 words = ""
                                 text = font.render(words, True, (200, 74, 220))
                             else:
-                                name = 'unknown'
+                                name = 'UNKNOWN'
                             stickcollidables()
                         if check.__class__ == Stick:
                             if ActiveStick:
@@ -671,6 +744,10 @@ while not done:
                                 stickcollidables()
                         if check.__class__ == ModAction:
                             currentAction.action = check
+
+                        if check.__class__ == dict:
+                            for item in check:
+                                collidables.append(item)
                     elif currentAction.hasAction():
                         currentAction.setTrigger(collided)
                     elif widgetCell.holding == False or widgetCell.holding != collided:
@@ -680,11 +757,31 @@ while not done:
                     elif widgetCell.holding == collided:
                         widgetCell.dragging = True
 
+                    if collided.__class__ == FileBox:
+                        check = collided.doclicked()
+                        if check.__class__ == GenericController or check.__class__ == LoadGenericController:
+                            ActiveStick = check
+                            if check.gamepad:
+                                name = check.gamepad.get_name()
+                                words = ""
+                                text = font.render(words, True, (200, 74, 220))
+                            else:
+                                name = 'UNKNOWN'
+                            stickcollidables()
+
 
                     break
+
             if touch == False:
                 widgetCell.holdItem(False)
                 widgetCell.update()
+            if check.__class__ != dict:
+                for item in filewindow.itemdict:
+                    for thing in collidables:
+                        if thing == item:
+                            collidables.remove(item)
+
+
 
         if event.type == pygame.MOUSEBUTTONUP:
             widgetCell.stopdrag()
@@ -704,6 +801,7 @@ while not done:
     display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
+    filewindow.draw(display)
     MakeStickButton.draw(display)
     ReloadButton.draw(display)
     if widgetCell.holding:
