@@ -279,6 +279,7 @@ while not done:
             if controller:
                 if controller.gamepad == False:
                     controller.gamepad = joysticks[ID]
+                    controller.resetListItems()
 
         if event.type == pygame.JOYDEVICEREMOVED:
             # This event will be generated when the program starts for every

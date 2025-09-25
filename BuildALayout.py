@@ -637,13 +637,14 @@ while not done:
         if event.type == pygame.JOYBUTTONDOWN:
             print("Button Pressed")
             if ActiveStick == False:
-                ActiveStick = LoadGenericController(joysticks[event.instance_id],event.instance_id)
+                ActiveStick = LoadGenericController(joysticks[event.instance_id])
                 name = ActiveStick.gamepad.get_name()
                 stickcollidables()
                 words = ""
                 text = font.render(words, True, (200, 74, 220))
-            if ActiveStick.gamepad == False:
-                if name == joysticks[event.instance_id].get_name():
+            elif ActiveStick.gamepad == False:
+                newname = joysticks[event.instance_id].get_name()
+                if name == newname:
                     ActiveStick.gamepad = joysticks[event.instance_id]
                     ActiveStick.resetListItems()
                     stickcollidables()
@@ -651,7 +652,7 @@ while not done:
                     name = ActiveStick.gamepad.get_name()
                     text = font.render(words, True, (200, 74, 220))
                 else:
-                    ActiveStick = LoadGenericController(joysticks[event.instance_id], event.instance_id)
+                    ActiveStick = LoadGenericController(joysticks[event.instance_id])
                     name = ActiveStick.gamepad.get_name()
                     stickcollidables()
                     words = ""
@@ -668,15 +669,16 @@ while not done:
         if event.type == pygame.JOYDEVICEREMOVED:
             # This event will be generated when the program starts for every
             # joystick, filling up the list without needing to create them manually.
-            joy = event.instance_id
+            deviceremovedID = event.instance_id
             #ID = ActiveStick.gamepad.get_instance_id()
             if ActiveStick:
                 if ActiveStick.gamepad:
-                    if ActiveStick.gamepad.get_instance_id() == joy:
+                    IDofgamepad = ActiveStick.gamepad.get_instance_id()
+                    if IDofgamepad == deviceremovedID:
                         ActiveStick.gamepad = False
                         words = "PRESS BUTTON"
                         text = font.render(words, True, (200, 74, 220))
-            del joysticks[joy]
+            del joysticks[deviceremovedID]
 
 
 

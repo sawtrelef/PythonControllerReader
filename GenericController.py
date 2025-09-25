@@ -10,10 +10,12 @@ class LoadGenericController():
     ID = False
     actioncount = 0
     timecount = 0
-    def __init__(self, joystick = False, ID = 0):
-        offset = 0
-        #self.ID = ID
+    def __init__(self, joystick = False):
         self.gamepad = joystick
+        self.buttondict = {}
+        self.axisdict = {}
+        self.hatdict = {}
+        self.sticklist = []
         if self.gamepad:
             for i in range(self.gamepad.get_numbuttons()):
                 self.buttondict[i] = Button(i,40, 100+(i*20),self)

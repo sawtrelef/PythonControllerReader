@@ -22,7 +22,9 @@ class Button():
         if self.controller.gamepad:
             if len(self.controller.buttondict) > 0:
                 if self.buttonnum in self.controller.buttondict:
-                    self.state = self.controller.gamepad.get_button(self.buttonnum)
+                    safetylength = self.controller.gamepad.get_numbuttons()
+                    if self.buttonnum < safetylength:
+                        self.state = self.controller.gamepad.get_button(self.buttonnum)
             else:
                 self.state = 0
         else:
