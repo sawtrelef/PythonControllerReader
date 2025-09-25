@@ -5,10 +5,11 @@ from os import listdir
 from joystickstuff import Button, Stick, TriggerAxis, Hat
 from GenericController import LoadGenericController, GenericController
 from ClickableOptionButton import ClickableOptionButton
+from FileStuff import FileBox, FileWindow
 
 pygame.init()
 
-font = pygame.font.Font('SuperMystery.ttf', 48)
+font = pygame.font.Font('SuperMystery.ttf', 24)
 
 pygame.display.set_caption('Build Your Controller Layout')
 workrectimage = pygame.image.load('assets/Background.png')
@@ -46,72 +47,6 @@ ActiveStick = False
 currentAction = ActionContainer()
 
 collidables = []
-
-class FileBox():
-    rect = False
-    x = -1
-    y = -1
-    textitem = False
-    text = ""
-
-    def __init__(self, textitem,xpos,ypos,rect,text):
-        self.rect = rect
-        self.ypos = ypos
-        self.xpos = xpos
-        self.textitem = textitem
-        self.text = text
-
-    def doclicked(self):
-        dummy = load("./layouts/"+self.text)
-        return dummy
-
-
-
-class FileWindow():
-    xpos = 0
-    ypos = 0
-    height = 0
-    width = 0
-    state = False
-    itemdict = {}
-    FONT = pygame.font.Font('SuperMystery.ttf', 8)
-    def __init__(self, directory = False):
-        return
-
-    def UpdateSelf(self, directory = False, coords = ()):
-        self.height = 0
-        self.width = 0
-        self.x, self.y = coords[0], coords[1]
-        self.itemdict = {}
-        if directory:
-            filelist = listdir(directory)
-            buffer = 2
-            for item in filelist:
-                textbox = self.FONT.render(str(item),True,(75,200,200))
-                rect = textbox.get_rect()
-                addheight = rect.height
-                rect.x = self.x + 2
-                rect.y = self.y - addheight - buffer
-
-                box = FileBox(textbox,x,y,rect,str(item))
-                buffer = buffer + addheight + 1
-                width = rect.width
-                if width > self.width:
-                    self.width = width
-                self.itemdict[box] = rect
-
-            buffer = buffer + 2
-            self.height = buffer
-            self.width = self.width+4
-            self.state = True
-        return self.itemdict
-    def draw(self, WINDOW):
-        if self.state == True:
-            pygame.draw.rect(WINDOW,(75,75,175),(self.x,self.y-self.height,self.width,self.height))
-            for item in self.itemdict:
-                WINDOW.blit(item.textitem, item.rect)
-
-
 
 filewindow = FileWindow()
 
@@ -190,8 +125,14 @@ class HoldingCell():
 widgetCell = HoldingCell()
 
 
-def save():
-    file = open('layout.txt', 'w')
+def save(filename = ""):
+    if filename == "":
+        filename = "./layouts/layout.txt"
+
+    if filename[len(filename)-4:] != ".txt":
+        filename = filename + ".txt"
+
+    file = open(filename, 'w')
     if ActiveStick:
         buttondict = ActiveStick.buttondict
         length = len(buttondict)
@@ -385,8 +326,34 @@ def load(filename = ""):
         return Controller
     return False
 
+def loadclicked(self):
+    dummy = load("./layouts/"+self.text)
+    return dummy
+
 def LoadButtonDoClicked():
     itemlist = filewindow.UpdateSelf("./layouts/",(position[0],position[1]))
+
+    for item in itemlist:
+        item.clickdummy = loadclicked
+
+    return itemlist
+
+def saveclicked(self):
+    save("./layouts/"+self.text)
+def NewFileBoxClicked(self):
+    return self
+
+
+def SaveButtonDoClicked():
+    itemlist = filewindow.UpdateSelf("./layouts/",(position[0],position[1]),"save")
+
+    for item in itemlist:
+        if item.text != "NEW":
+            item.clickdummy = saveclicked
+        else:
+            item.clickdummy = NewFileBoxClicked
+
+
     return itemlist
 
 def makeStick():
@@ -419,7 +386,7 @@ ReloadButton = ClickableOptionButton(0,0,reloadimage)
 
 
 MakeStickButton = ClickableOptionButton(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
-SaveButton.doclicked = save
+SaveButton.doclicked = SaveButtonDoClicked
 LoadButton.doclicked = LoadButtonDoClicked
 MakeStickButton.doclicked = makeStick
 ReloadButton.doclicked = reloadController
@@ -748,16 +715,7 @@ while not done:
                         if check.__class__ == dict:
                             for item in check:
                                 collidables.append(item)
-                    elif currentAction.hasAction():
-                        currentAction.setTrigger(collided)
-                    elif widgetCell.holding == False or widgetCell.holding != collided:
-                        widgetCell.holdItem(collided)
-                        widgetCell.stopdrag()
-                        widgetCell.update()
-                    elif widgetCell.holding == collided:
-                        widgetCell.dragging = True
-
-                    if collided.__class__ == FileBox:
+                    elif collided.__class__ == FileBox:
                         check = collided.doclicked()
                         if check.__class__ == GenericController or check.__class__ == LoadGenericController:
                             ActiveStick = check
@@ -768,6 +726,20 @@ while not done:
                             else:
                                 name = 'UNKNOWN'
                             stickcollidables()
+                        if check.__class__ == FileBox:
+                            filewindow.state = True
+                            widgetCell.holding = check
+                            check.updatetext("")
+                    elif currentAction.hasAction():
+                        currentAction.setTrigger(collided)
+                    elif widgetCell.holding == False or widgetCell.holding != collided:
+                        widgetCell.holdItem(collided)
+                        widgetCell.stopdrag()
+                        widgetCell.update()
+                    elif widgetCell.holding == collided:
+                        widgetCell.dragging = True
+
+
 
 
                     break
@@ -786,6 +758,17 @@ while not done:
         if event.type == pygame.MOUSEBUTTONUP:
             widgetCell.stopdrag()
 
+        if event.type == pygame.KEYDOWN:
+            if widgetCell.holding.__class__ == FileBox:
+                if event.unicode == '\x08':
+                    widgetCell.holding.updatetext(widgetCell.holding.text[:-1])
+                elif event.unicode == '\r':
+                    save('./layouts/'+widgetCell.holding.text)
+                    filewindow.state = False
+                else:
+                    widgetCell.holding.updatetext(widgetCell.holding.text + str(event.unicode))
+
+
 
     if done:
         break
@@ -801,6 +784,8 @@ while not done:
     display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
+    if filewindow.state:
+        filewindow.update()
     filewindow.draw(display)
     MakeStickButton.draw(display)
     ReloadButton.draw(display)
@@ -808,7 +793,7 @@ while not done:
         widgetCell.draw(display)
 
     if ActiveStick:
-        font = pygame.font.Font('SuperMystery.ttf', 48)
+        font = pygame.font.Font('SuperMystery.ttf', 24)
         active = font.render(str(name).upper(),True,(40,200,60))
         display.blit(active,(20,60))
         ActiveStick.update()
