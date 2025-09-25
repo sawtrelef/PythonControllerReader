@@ -3,6 +3,9 @@ from PS5Controller import PlayStation5Controller
 from joystickstuff import Button, TriggerAxis, Stick, Hat
 from GenericController import GenericController
 from ClickableOptionButton import ClickableOptionButton
+from FileStuff import FileWindow, FileBox
+
+
 
 pygame.init()
 joysticks = {}
@@ -16,6 +19,8 @@ y = int(rect.bottomright[1])
 pygame.display.set_caption('Controller Input Visualizer')
 display = pygame.display.set_mode((x,y+24))
 clock = pygame.time.Clock()
+filewindow = FileWindow()
+
 
 class APMCounter():
     valuelist = []
@@ -54,7 +59,7 @@ controller = False
 
 def load(filename = ""):
     if filename == "":
-        filename = "layout.txt"
+        filename = "./layouts/layout.txt"
     file = open(filename, 'r')
 
     ## generates a list object that holds each line as a string
@@ -174,7 +179,7 @@ def load(filename = ""):
         return Controller
     return False
 
-controller = load("layout.txt")
+controller = load("./layouts/layout.txt")
 controller.resetListItems()
 counter = APMCounter(controller)
 
@@ -186,19 +191,37 @@ def Reset():
 def ToggleLines():
     controller.StickLines = not controller.StickLines
 
+def loadclicked(self):
+    dummy = load("./layouts/"+self.text)
+    return dummy
+
+def LoadButtonDoClicked():
+    itemlist = filewindow.UpdateSelf("./layouts/",(position[0],position[1]))
+
+    for item in itemlist:
+        item.clickdummy = loadclicked
+
+    return itemlist
+
 resetimage = pygame.image.load('./assets/resetbutton.png')
 resetrect = resetimage.get_rect()
-ResetButton = ClickableOptionButton(1, y-resetrect.bottomright[1]-1+24,resetimage)
+ResetButton = ClickableOptionButton(1, y,resetimage)
 ResetButton.doclicked = Reset
+
+loadimage = pygame.image.load('assets/loadbutton.png')
+loadrect = loadimage.get_rect()
+LoadButton = ClickableOptionButton(ResetButton.rect.x + loadrect.width+1, ResetButton.rect.y,loadimage)
+LoadButton.doclicked = LoadButtonDoClicked
 
 linetoggleimage = pygame.image.load('./assets/linesbutton.png')
 linerect = linetoggleimage.get_rect()
-LineToggleButton = ClickableOptionButton(x-linerect.bottomright[0], y - linerect.bottomright[1]-1+24,linetoggleimage)
+LineToggleButton = ClickableOptionButton(x-linerect.width, y,linetoggleimage)
 LineToggleButton.doclicked = ToggleLines
 
 collidables = []
 collidables.append(ResetButton)
 collidables.append(LineToggleButton)
+collidables.append(LoadButton)
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
     mousey = mousepos[1]
@@ -222,6 +245,8 @@ while not done:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
                 touch = False
+                check = False
+                filewindow.state = False
 
                 for i in range(len(collidables) - 1, -1, -1):
                     item = collidables[i]
@@ -230,6 +255,20 @@ while not done:
                         collided = item
                         if collided.__class__ == ClickableOptionButton:
                             check = collided.doclicked()
+                            if check.__class__ == dict:
+                                for item in check:
+                                    collidables.append(item)
+                        elif collided.__class__ == FileBox:
+                            check = collided.doclicked()
+                            print("high")
+                            if check.__class__ == GenericController:
+                                controller = check
+
+                if check.__class__ != dict:
+                    for item in filewindow.itemdict:
+                        for thing in collidables:
+                            if thing == item:
+                                collidables.remove(item)
 
         if event.type == pygame.JOYDEVICEADDED:
             # This event will be generated when the program starts for every
@@ -263,6 +302,8 @@ while not done:
     controller.draw(display)
     counter.draw(display)
     ResetButton.draw(display)
+    LoadButton.draw(display)
+    filewindow.draw(display)
     LineToggleButton.draw(display)
 
 
