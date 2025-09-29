@@ -9,6 +9,7 @@ class Button():
     off = image.load(unpressed)
     on = image.load(pressed)
     rotate = 0
+    actions = 0
     def __init__(self, buttonnum=-1, x=-1, y=-1, controller=False):
         self.x = x
         self.y = y
@@ -35,6 +36,7 @@ class Button():
         else:
             if self.image != self.on:
                 self.image = self.on
+                self.actions = self.actions +1
                 return True
             return False
 
@@ -64,6 +66,7 @@ class TriggerAxis():
     paddle = image.load(paddleimage)
     horizontal = False
     rotate = 0
+    actions = 0
     def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='axis', rotate = 0):
             self.x = x
             self.y = y
@@ -93,6 +96,7 @@ class TriggerAxis():
         if self.activestate == False:
             if self.ymod > .1:
                 self.activestate = True
+                self.actions = self.actions +1
                 return True
             return False
 
@@ -152,6 +156,8 @@ class Stick():
     stickunpressed = image.load(unpressed)
     stickpressed = image.load(pressed)
     rotate = 0
+    moveactions = 0
+    pressactions = 0
 
     def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1, controller=False):
         self.x = x
@@ -185,6 +191,7 @@ class Stick():
         else:
             if self.image != self.stickpressed:
                 self.image = self.stickpressed
+                self.pressactions = self.pressactions+1
                 action = True
             else:
                 action = False
@@ -205,6 +212,7 @@ class Stick():
         if self.horactive == False:
             if abs(self.hormod) > 2:
                 self.horactive = True
+                self.moveactions = self.moveactions+1
                 self.controller.actioncount = self.controller.actioncount + 1
 
 
@@ -214,6 +222,7 @@ class Stick():
         if self.vertactive == False:
             if abs(self.vertmod) > 2:
                 self.vertactive = True
+                self.moveactions = self.moveactions + 1
                 self.controller.actioncount = self.controller.actioncount + 1
 
         if abs(self.vertmod) < 2:
@@ -282,6 +291,7 @@ class Hat():
     pressedimage = image.load(pressed)
     unpressedimage= image.load(unpressed)
     stateimage = unpressedimage
+    actions = 0
 
     def __init__(self, hatnum = -1, x = -1, y = -1, controller = False):
         self.hatnumber = hatnum
@@ -314,6 +324,7 @@ class Hat():
                     if self.hatnumber < length and self.hatnumber > -1:
                         if self.state != self.controller.gamepad.get_hat(self.hatnumber) and self.state != (0,0):
                             action = True
+                            self.actions = self.actions+1
                         self.state = self.controller.gamepad.get_hat(self.hatnumber)
                     else:
                         self.state = (0,0)

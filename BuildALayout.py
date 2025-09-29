@@ -740,10 +740,6 @@ while not done:
                         widgetCell.update()
                     elif widgetCell.holding == collided:
                         widgetCell.dragging = True
-
-
-
-
                     break
 
             if touch == False:
@@ -754,6 +750,7 @@ while not done:
                     for thing in collidables:
                         if thing == item:
                             collidables.remove(item)
+                break
 
 
 

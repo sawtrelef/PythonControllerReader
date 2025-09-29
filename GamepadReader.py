@@ -4,6 +4,7 @@ from joystickstuff import Button, TriggerAxis, Stick, Hat
 from GenericController import GenericController
 from ClickableOptionButton import ClickableOptionButton
 from FileStuff import FileWindow, FileBox
+from os import listdir
 
 
 
@@ -26,7 +27,9 @@ class APMCounter():
     valuelist = []
     timepassed = 0
     actionperlastminute = 0
-    averageamp = 0
+    averageapm = 0
+    highest = 0
+    ValueTarget = False
     def __init__(self,target):
         self.ValueTarget = target
         self.text = font.render('APLM: ' + str(self.actionperlastminute), True, (149, 75, 220))
@@ -45,6 +48,8 @@ class APMCounter():
         num2 = self.valuelist[0]
         value = num1 - num2
         self.actionperlastminute = value
+        if self.actionperlastminute > self.highest:
+            self.highest = self.actionperlastminute
         self.averageapm = int(self.valuelist[length-1]/(self.timepassed/3600))
 
     def draw(self, WINDOW):
@@ -179,6 +184,58 @@ def load(filename = ""):
         return Controller
     return False
 
+def createlogfile():
+    filelist = listdir('./logs')
+    listlen = len(filelist)
+    logname = 'log_'+str(listlen)+".txt"
+    file = open('./logs/'+logname, 'w')
+    duration = controller.timecount
+    actions = controller.actioncount
+    minutes = int(duration/3600)
+    seconds = int((duration%3600)/60)
+    leftover = duration%60
+    average = counter.averageapm
+    highest = counter.highest
+    file.write("Frames Logged(60 fps): " + str(duration)+'\n')
+    file.write("Actual time passed: " +str(minutes)+"m"+str(seconds)+"s"+ " and " + str(leftover) +" frames"+'\n')
+    file.write("Actions logged: " +str(actions)+'\n')
+    file.write("Overall average per minute: " + str(average)+'\n')
+    file.write("Highest minute: " + str(highest)+'\n')
+    buttondict = controller.buttondict
+    axisdict = controller.axisdict
+    hatdict = controller.hatdict
+    sticklist = controller.sticklist
+    file.write ("BTTONS *************\n")
+    for item in buttondict:
+        var = buttondict[item].actions
+        name = buttondict[item].buttonnum
+        #name = buttondict[item].name
+        file.write("Button " +str(name)+": " + str(var) + "\n")
+    file.write ("AXIS *************\n")
+    for item in axisdict:
+        var = axisdict[item].actions
+        name = axisdict[item].axis
+        # name = axisdict[item].name
+        file.write("Axis " +str(name)+": " + str(var) + "\n")
+    file.write("HATS *************\n")
+    for item in hatdict:
+        var = hatdict[item].actions
+        name = hatdict[item].hatnumber
+        # name = hatdict[item].name
+        file.write("Hat " +str(name)+": " + str(var) + "\n")
+    file.write ("STICKS *************\n")
+    for i in range(len(sticklist)):
+        pressed = sticklist[i].pressactions
+        moved = sticklist[i].moveactions
+        total = pressed+moved
+        name = i
+        # name = sticklist[i].name
+        file.write("Stick " + str(name) + "- total = " +str(total) + " - pressed = " +str(pressed) + " - moved = " +str(moved) + "\n")
+
+    file.close()
+    Reset()
+
+
 controller = load("./layouts/layout.txt")
 controller.resetListItems()
 counter = APMCounter(controller)
@@ -193,6 +250,8 @@ def ToggleLines():
 
 def loadclicked(self):
     dummy = load("./layouts/"+self.text)
+    drawlist[0] = dummy
+    counter.ValueTarget =  dummy
     return dummy
 
 def LoadButtonDoClicked():
@@ -218,10 +277,20 @@ linerect = linetoggleimage.get_rect()
 LineToggleButton = ClickableOptionButton(x-linerect.width, y,linetoggleimage)
 LineToggleButton.doclicked = ToggleLines
 
+logbuttonimage = pygame.image.load('./assets/logbutton.png')
+logrect = logbuttonimage.get_rect()
+LogButton = ClickableOptionButton(LoadButton.rect.x+LoadButton.rect.width, y, logbuttonimage)
+LogButton.doclicked = createlogfile
+
+
 collidables = []
 collidables.append(ResetButton)
 collidables.append(LineToggleButton)
 collidables.append(LoadButton)
+collidables.append(LogButton)
+drawlist = [controller, counter,ResetButton, LoadButton, LineToggleButton, LogButton, filewindow]
+
+
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
     mousey = mousepos[1]
@@ -263,12 +332,14 @@ while not done:
                             print("high")
                             if check.__class__ == GenericController:
                                 controller = check
+                        break
 
                 if check.__class__ != dict:
                     for item in filewindow.itemdict:
                         for thing in collidables:
                             if thing == item:
                                 collidables.remove(item)
+                    break
 
         if event.type == pygame.JOYDEVICEADDED:
             # This event will be generated when the program starts for every
@@ -300,13 +371,9 @@ while not done:
     controller.update()
     counter.update()
     display.blit(background, (0,0))
-    controller.draw(display)
-    counter.draw(display)
-    ResetButton.draw(display)
-    LoadButton.draw(display)
-    filewindow.draw(display)
-    LineToggleButton.draw(display)
 
+    for item in drawlist:
+        item.draw(display)
 
     pygame.display.update()
     clock.tick(60)

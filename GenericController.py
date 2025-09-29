@@ -69,6 +69,15 @@ class LoadGenericController():
     def resetCounter(self):
         self.actioncount = 0
         self.timecount = 0
+        for item in self.buttondict:
+            item.actions = 0
+        for item in self.axisdict:
+            item.actions = 0
+        for item in self.hatdict:
+            item.actions = 0
+        for item in self.sticklist:
+            item.pressactions = 0
+            item.moveactions = 0
 
     def resetListItems(self):
         for item in self.buttondict:
@@ -135,6 +144,17 @@ class GenericController():
     def resetCounter(self):
         self.actioncount = 0
         self.timecount = 0
+        for item in self.buttondict:
+            self.buttondict[item].actions = 0
+        for item in self.axisdict:
+            self.axisdict[item].actions = 0
+        for item in self.hatdict:
+            self.hatdict[item].actions = 0
+        for item in self.sticklist:
+            item.pressactions = 0
+            item.moveactions = 0
+
+
 
     def resetListItems(self):
         for item in self.buttondict:

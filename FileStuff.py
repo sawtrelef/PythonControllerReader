@@ -17,6 +17,10 @@ class FileBox():
         self.text = text
 
 
+
+    ##THIS IS ABSOLUTELY GENIUS RIGHT HERE
+    ##I DON'T KNOW THE OFFICIAL NAME OF THIS PATTERN
+    ##I'M CALLING IT THE DOUBLE DUMMY PATTERN
     def clickdummy(self,item):
         return
 
