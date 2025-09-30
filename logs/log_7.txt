@@ -1,13 +1,13 @@
-Frames Logged(60 fps): 42
-Actual time passed: 0m0s and 42 frames
-Actions logged: 0
-Overall average per minute: 0
-Highest minute: 0
+Frames Logged(60 fps): 829
+Actual time passed: 0m13s and 49 frames
+Actions logged: 30
+Overall average per minute: 130
+Highest minute: 30
 BTTONS *************
-Button 0: 0
-Button 1: 0
-Button 2: 0
-Button 3: 0
+Button X: 0
+Button O: 0
+Button Sq: 0
+Button T: 0
 Button 11: 0
 Button 12: 0
 Button 13: 0
@@ -24,5 +24,5 @@ Axis 4: 0
 Axis 5: 0
 HATS *************
 STICKS *************
-Stick 0- total = 0 - pressed = 0 - moved = 0
+Stick Left- total = 30 - Get off my horse = 7 - moved = 23
 Stick 1- total = 0 - pressed = 0 - moved = 0

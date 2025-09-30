@@ -10,14 +10,15 @@ class Button():
     on = image.load(pressed)
     rotate = 0
     actions = 0
-    def __init__(self, buttonnum=-1, x=-1, y=-1, controller=False):
+    name = ""
+    def __init__(self, buttonnum=-1, x=-1, y=-1, controller=False, name = ""):
         self.x = x
         self.y = y
         self.buttonnum = buttonnum
         self.state = 0
         self.image = self.off
         self.controller = controller
-
+        self.name = name
 
     def UpdateSelf(self):
         if self.controller.gamepad:
@@ -67,7 +68,8 @@ class TriggerAxis():
     horizontal = False
     rotate = 0
     actions = 0
-    def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='axis', rotate = 0):
+    name = ""
+    def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='axis', rotate = 0, name =""):
             self.x = x
             self.y = y
             self.ymod = -1
@@ -81,6 +83,7 @@ class TriggerAxis():
             self.draw = self.modedict[mode]
             self.load = self.loaddict[mode]
             self.rotate = rotate
+            self.name = name
 
     def UpdateSelf(self):
         if self.controller.gamepad:
@@ -158,8 +161,10 @@ class Stick():
     rotate = 0
     moveactions = 0
     pressactions = 0
+    stickname = ""
+    buttonname = ""
 
-    def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1, controller=False):
+    def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1, controller=False, stickname ="", buttonname = ""):
         self.x = x
         self.y = y
         self.vertaxis = vertaxis
@@ -175,6 +180,8 @@ class Stick():
         self.rect = self.image.get_rect()
         self.horactive = False
         self.vertactive = False
+        self.stickname = stickname
+        self.buttonname = buttonname
     def UpdateSelf(self):
         if(self.buttonnum >= 0):
             if self.controller.gamepad:
@@ -292,8 +299,9 @@ class Hat():
     unpressedimage= image.load(unpressed)
     stateimage = unpressedimage
     actions = 0
+    name = ""
 
-    def __init__(self, hatnum = -1, x = -1, y = -1, controller = False):
+    def __init__(self, hatnum = -1, x = -1, y = -1, controller = False, name = ""):
         self.hatnumber = hatnum
         # x and y will be the top left coordinate for the background
         self.x = x
@@ -304,6 +312,7 @@ class Hat():
         self.centery = self.backgroundrect[3]/2
         self.state = (0,0)
         self.controller = controller
+        self.name = name
 
     #if (self.buttonnum >= 0):
        # if self.controller.gamepad:

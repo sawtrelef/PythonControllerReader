@@ -85,6 +85,11 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory+file)
             self.buttonlist = ButtonModList
+            buffer = 0
+            for item in ButtonModList:
+                buffer = buffer + item.rect.height + 2
+                item.rect.x = x
+                item.rect.y = y - buffer
         if self.holding.__class__ == Stick:
             self.changelist = []
             directory = './sticks/'
@@ -93,6 +98,11 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory+file)
             self.buttonlist = StickModList
+            buffer = 0
+            for item in StickModList:
+                buffer = buffer + item.rect.height + 2
+                item.rect.x = x
+                item.rect.y = y - buffer
         if self.holding.__class__ == TriggerAxis:
             self.changelist = []
             directory = './Axis/'
@@ -101,6 +111,11 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory + file)
             self.buttonlist = AxisModList
+            buffer = 0
+            for item in AxisModList:
+                buffer = buffer + item.rect.height + 2
+                item.rect.x = x
+                item.rect.y = y - buffer
         if self.holding.__class__ == Hat:
             self.changelist = []
             directory = './hats/'
@@ -109,6 +124,11 @@ class HoldingCell():
                 if 'unpressed' in file:
                     self.changelist.append(directory + file)
             self.buttonlist = HatModList
+            buffer = 0
+            for item in HatModList:
+                buffer = buffer + item.rect.height + 2
+                item.rect.x = x
+                item.rect.y = y - buffer
         templist = []
         for item in collidables:
             templist.append(item)
@@ -146,7 +166,8 @@ def save(filename = ""):
             onimage = str(buttondict[button].pressed)
             offimage = str(buttondict[button].unpressed)
             rotation = str(buttondict[button].rotate)
-            buttontext = "({},{},{},{},{},{})\n".format(number,xposition,yposition, offimage,onimage,rotation)
+            name = str(buttondict[button].name)
+            buttontext = "({},{},{},{},{},{},{})\n".format(number,xposition,yposition, offimage,onimage,rotation,name)
             print(buttontext)
             file.write(buttontext)
         axisdict = ActiveStick.axisdict
@@ -163,7 +184,8 @@ def save(filename = ""):
             flip = str(axisdict[axis].horizontal)
             mode = str(axisdict[axis].mode)
             rotate = str(axisdict[axis].rotate)
-            axistext = "({},{},{},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip,mode,rotate)
+            name = str(axisdict[axis].name)
+            axistext = "({},{},{},{},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip,mode,rotate,name)
             print(axistext)
             file.write(axistext)
         sticklist = ActiveStick.sticklist
@@ -179,7 +201,9 @@ def save(filename = ""):
             ypos = str(stick.y-y)
             pressed = str(stick.pressed)
             unpressed = str(stick.unpressed)
-            sticktext = "({},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed)
+            stickname = str(stick.stickname)
+            buttonname = str(stick.buttonname)
+            sticktext = "({},{},{},{},{},{},{},{},{})\n".format(vertaxis,horizontal,button,xpos,ypos,pressed,unpressed,stickname,buttonname)
             print(sticktext)
             file.write(sticktext)
         hatdict = ActiveStick.hatdict
@@ -195,7 +219,8 @@ def save(filename = ""):
             offimage = str(hatdict[hat].unpressed)
             backgroundimage = str(hatdict[hat].background)
             rotation = str(hatdict[hat].rotate)
-            hattext = '({},{},{},{},{},{},{},)\n'.format(number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
+            name = str(hatdict[hat].name)
+            hattext = '({},{},{},{},{},{},{},{})\n'.format(number,xposition,yposition,rotation,onimage,offimage,backgroundimage,name)
             print(hattext)
             file.write(hattext)
 
@@ -235,7 +260,10 @@ def load(filename = ""):
             offimage = str(values[3])
             onimage = str(values[4])
             rotation = int(values[5])
-            addbutton = Button(buttonnum,xpos,ypos)
+            name = ""
+            if 6 < len(values):
+                name = str(values[6])
+            addbutton = Button(buttonnum,xpos,ypos,False,name)
             addbutton.unpressed = offimage
             addbutton.pressed = onimage
             addbutton.rotate = rotation
@@ -256,11 +284,14 @@ def load(filename = ""):
             flipbool = values[5]
             mode = str(values[6])
             rotate = int(values[7])
+            name = ""
+            if 8 < len(values):
+                name = str(values[8])
             if flipbool == 'True':
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode,rotate)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode,rotate,name)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
@@ -282,9 +313,15 @@ def load(filename = ""):
             buttonnumber = int(values[2])
             onimage = values[5]
             offimage = values[6]
+            stickname = ""
+            buttonname = ""
+            if 7 < len(values):
+                stickname = values[7]
+            if 8 < len(values):
+                buttonname = values[8]
             #stick creation data format
             #(xpos,ypos,vertaxis, horizontalaxis, buttonnumber)
-            addstick = Stick(xpos,ypos,vertaxis,horizontalaxis,buttonnumber)
+            addstick = Stick(xpos,ypos,vertaxis,horizontalaxis,buttonnumber,stickname,buttonname)
             addstick.pressed = onimage
             addstick.unpressed = offimage
             addstick.load()
@@ -303,8 +340,11 @@ def load(filename = ""):
             onimage = str(values[4])
             offimage = str(values[5])
             backgroundimage = str(values[6])
+            name = ""
+            if 7 < len(values):
+                name = str(values[7])
 
-            addhat = Hat(hatnum, xpos, ypos)
+            addhat = Hat(hatnum, xpos, ypos,False,name)
             addhat.unpressed = offimage
             addhat.pressed = onimage
             addhat.background = backgroundimage
@@ -574,12 +614,11 @@ def changeMode():
 changeModeButton.doclicked = changeMode
 
 AxisModList = []
-AxisModList.append(rotatebutton)
 AxisModList.append(changeModeButton)
+AxisModList.append(rotatebutton)
 
 HatModList = []
 HatModList.append(changebutton)
-
 
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]

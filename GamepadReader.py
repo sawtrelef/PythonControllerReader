@@ -90,7 +90,10 @@ def load(filename = ""):
             offimage = str(values[3])
             onimage = str(values[4])
             rotation = int(values[5])
-            addbutton = Button(buttonnum, xpos, ypos)
+            name = ""
+            if 6 < len(values):
+                name = str(values[6])
+            addbutton = Button(buttonnum, xpos, ypos, False, name)
             addbutton.unpressed = offimage
             addbutton.pressed = onimage
             addbutton.rotate = rotation
@@ -111,11 +114,14 @@ def load(filename = ""):
             flipbool = values[5]
             mode = str(values[6])
             rotate = int(values[7])
+            name = ""
+            if 8 < len(values):
+                name = str(values[8])
             if flipbool == 'True':
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode, rotate)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode, rotate, name)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
             addtrigger.horizontal = flipbool
@@ -137,9 +143,15 @@ def load(filename = ""):
             buttonnumber = int(values[2])
             onimage = values[5]
             offimage = values[6]
+            stickname = ""
+            buttonname = ""
+            if 7 < len(values):
+                stickname = values[7]
+            if 8 < len(values):
+                buttonname = values[8]
             # stick creation data format
             # (xpos,ypos,vertaxis, horizontalaxis, buttonnumber)
-            addstick = Stick(xpos, ypos, vertaxis, horizontalaxis, buttonnumber)
+            addstick = Stick(xpos, ypos, vertaxis, horizontalaxis, buttonnumber,False,stickname, buttonname)
             addstick.pressed = onimage
             addstick.unpressed = offimage
             addstick.load()
@@ -158,8 +170,11 @@ def load(filename = ""):
             onimage = str(values[4])
             offimage = str(values[5])
             backgroundimage = str(values[6])
+            name = ""
+            if 7 < len(values):
+                name = str(values[7])
 
-            addhat = Hat(hatnum, xpos, ypos)
+            addhat = Hat(hatnum, xpos, ypos, False, name)
             addhat.unpressed = offimage
             addhat.pressed = onimage
             addhat.background = backgroundimage
@@ -208,19 +223,28 @@ def createlogfile():
     file.write ("BTTONS *************\n")
     for item in buttondict:
         var = buttondict[item].actions
-        name = buttondict[item].buttonnum
+        if len(buttondict[item].name) > 0:
+            name = buttondict[item].name
+        else:
+            name = buttondict[item].buttonnum
         #name = buttondict[item].name
         file.write("Button " +str(name)+": " + str(var) + "\n")
     file.write ("AXIS *************\n")
     for item in axisdict:
         var = axisdict[item].actions
-        name = axisdict[item].axis
+        if len(axisdict[item].name) > 0:
+            name = axisdict[item].name
+        else:
+            name = axisdict[item].axis
         # name = axisdict[item].name
         file.write("Axis " +str(name)+": " + str(var) + "\n")
     file.write("HATS *************\n")
     for item in hatdict:
         var = hatdict[item].actions
-        name = hatdict[item].hatnumber
+        if len(hatdict[item].name)>0:
+            name = hatdict[item].name
+        else:
+            name = hatdict[item].hatnumber
         # name = hatdict[item].name
         file.write("Hat " +str(name)+": " + str(var) + "\n")
     file.write ("STICKS *************\n")
@@ -228,9 +252,17 @@ def createlogfile():
         pressed = sticklist[i].pressactions
         moved = sticklist[i].moveactions
         total = pressed+moved
-        name = i
+        if len(sticklist[i].stickname) > 0:
+            name = sticklist[i].stickname
+        else:
+            name = i
+
+        if len(sticklist[i].buttonname) > 0:
+            buttname = sticklist[i].buttonname
+        else:
+            buttname = "pressed"
         # name = sticklist[i].name
-        file.write("Stick " + str(name) + "- total = " +str(total) + " - pressed = " +str(pressed) + " - moved = " +str(moved) + "\n")
+        file.write("Stick " + str(name) + "- total = " +str(total) + " - "+buttname+" = " +str(pressed) + " - moved = " +str(moved) + "\n")
 
     file.close()
     Reset()
