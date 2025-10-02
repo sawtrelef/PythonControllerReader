@@ -6,6 +6,7 @@ from joystickstuff import Button, Stick, TriggerAxis, Hat
 from GenericController import LoadGenericController, GenericController
 from ClickableOptionButton import ClickableOptionButton
 from FileStuff import FileBox, FileWindow
+from zipfile import ZipFile
 
 pygame.init()
 
@@ -232,6 +233,17 @@ def save(filename = ""):
     file.close()
 
 def load(filename = ""):
+    if filename[-4:] == ".zip":
+        return loadzip(filename)
+    else:
+        return loadfile(filename)
+
+def loadzip(filename = ""):
+    return False
+
+
+
+def loadfile(filename = ""):
     if filename == "":
         filename = "layout.txt"
     file = open(filename, 'r')

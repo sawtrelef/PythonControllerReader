@@ -1,0 +1,28 @@
+Frames Logged(60 fps): 172769
+Actual time passed: 47m59s and 29 frames
+Actions logged: 8190
+Overall average per minute: 170
+Highest minute: 339
+BTTONS *************
+Button X: 521
+Button O: 241
+Button Sq: 23
+Button T: 142
+Button 11: 49
+Button 12: 119
+Button 13: 99
+Button 14: 192
+Button 9: 21
+Button 10: 1244
+Button 15: 142
+Button 4: 1
+Button 6: 22
+Button 16: 0
+Button 5: 0
+AXIS *************
+Axis 4: 80
+Axis 5: 15
+HATS *************
+STICKS *************
+Stick Left- total = 2165 - Get off my horse = 135 - moved = 2030
+Stick 1- total = 3114 - pressed = 125 - moved = 2989
