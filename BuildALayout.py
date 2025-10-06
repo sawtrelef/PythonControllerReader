@@ -186,7 +186,9 @@ def save(filename = ""):
             mode = str(axisdict[axis].mode)
             rotate = str(axisdict[axis].rotate)
             name = str(axisdict[axis].name)
-            axistext = "({},{},{},{},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip,mode,rotate,name)
+            pressim = str(axisdict[axis].pressed)
+            unpressedim = str(axisdict[axis].unpressed)
+            axistext = "({},{},{},{},{},{},{},{},{},{},{})\n".format(number,xpos,ypos,barim,paddleim,flip,mode,rotate,name,pressim,unpressedim)
             print(axistext)
             file.write(axistext)
         sticklist = ActiveStick.sticklist
@@ -296,16 +298,20 @@ def loadfile(filename = ""):
             flipbool = values[5]
             mode = str(values[6])
             rotate = int(values[7])
-            name = ""
+            name = str(values[8])
+            pressname = str(values[9])
+            unpressedname = str(values[10])
             if 8 < len(values):
                 name = str(values[8])
             if flipbool == 'True':
                 flipbool = True
             else:
                 flipbool = False
-            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode,rotate,name)
+            addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode, rotate, name)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
+            addtrigger.pressed = pressname
+            addtrigger.unpressed = unpressedname
             addtrigger.horizontal = flipbool
             addtrigger.load()
             axisdict[axisnum] = addtrigger

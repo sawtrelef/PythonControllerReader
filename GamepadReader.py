@@ -129,9 +129,11 @@ def loadzip(filename = ""):
                     flipbool = values[5]
                     mode = str(values[6])
                     rotate = int(values[7])
-                    name = ""
-                    if 8 < len(values):
-                        name = str(values[8])
+                    name = str(values[8])
+                    pressed = str(values[9])
+                    unpressed = str(values[10])
+                    if name == "%r":
+                        name = ""
                     if flipbool == 'True':
                         flipbool = True
                     else:
@@ -140,15 +142,28 @@ def loadzip(filename = ""):
 
                     paddleimagename = folder + paddleimage.removeprefix('.')
                     triggerimagename = folder + triggerimage.removeprefix('.')
+                    pressname = folder + pressed.removeprefix('.')
+                    unpressname = folder + unpressed.removeprefix('.')
+
                     with zf.open(paddleimagename) as f:
                         paddle = image.load(f)
                     with zf.open(triggerimagename) as f:
                         bar = image.load(f)
+                    with zf.open(pressname) as f:
+                        press = image.load(f)
+                    with zf.open(unpressname) as f:
+                        unpress = image.load(f)
                     if flipbool == True:
                         paddle = transform.rotate(paddle, 90)
                         bar = transform.rotate(bar, 90)
                     addtrigger.paddle = paddle
+                    addtrigger.paddleimage = paddleimagename
                     addtrigger.bar = bar
+                    addtrigger.barimage = triggerimagename
+                    addtrigger.unpressedimage = unpress
+                    addtrigger.unpressed = unpressname
+                    addtrigger.pressed = pressname
+                    addtrigger.pressedimage = press
 
                     # addtrigger.paddleimage = paddleimage
                     # addtrigger.barimage = triggerimage
@@ -306,7 +321,9 @@ def loadfile(filename = ""):
             flipbool = values[5]
             mode = str(values[6])
             rotate = int(values[7])
-            name = ""
+            name = str(values[8])
+            pressname = str(values[9])
+            unpressedname = str(values[10])
             if 8 < len(values):
                 name = str(values[8])
             if flipbool == 'True':
@@ -316,6 +333,8 @@ def loadfile(filename = ""):
             addtrigger = TriggerAxis(xpos, ypos, axisnum, False, mode, rotate, name)
             addtrigger.paddleimage = paddleimage
             addtrigger.barimage = triggerimage
+            addtrigger.pressed = pressname
+            addtrigger.unpressed = unpressedname
             addtrigger.horizontal = flipbool
             addtrigger.load()
             axisdict[axisnum] = addtrigger
