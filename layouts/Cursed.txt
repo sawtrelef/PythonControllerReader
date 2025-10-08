@@ -9,7 +9,7 @@ Number of Independent buttons: 15
 (14,101,91,./buttons/playstationunpressed.png,./buttons/playstationpressed.png,270,)
 (9,60,5,./buttons/bumperunpressed.png,./buttons/bumperpressed.png,0,)
 (10,243,5,./buttons/bumperunpressed.png,./buttons/bumperpressed.png,0,)
-(15,153,71,./buttons/bumperunpressed.png,./buttons/bumperpressed.png,0,)
+(15,153,71,./buttons/bumperunpressed.png,./buttons/bumperpressed.png,180,)
 (4,121,71,./buttons/unpressedoption.png,./buttons/pressedoption.png,0,)
 (6,256,71,./buttons/unpressedoption.png,./buttons/pressedoption.png,0,)
 (16,195,141,./buttons/unpressedoption.png,./buttons/pressedoption.png,90,)

@@ -12,6 +12,7 @@ class Button():
     actions = 0
     name = ""
     def __init__(self, buttonnum=-1, x=-1, y=-1, controller=False, name = ""):
+        self.assetdict = {}
         self.x = x
         self.y = y
         self.buttonnum = buttonnum
@@ -19,6 +20,15 @@ class Button():
         self.image = self.off
         self.controller = controller
         self.name = name
+        self.assetdict["pressed"] = self.pressed, self.on, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.off, self.setunpressed
+
+    def setpressed(self,PATHNAME):
+        self.pressed = PATHNAME
+        self.load()
+    def setunpressed(self,PATHNAME):
+        self.unpressed = PATHNAME
+        self.load()
 
     def UpdateSelf(self):
         if self.controller.gamepad:
@@ -48,6 +58,9 @@ class Button():
         self.on = image.load(self.pressed)
         self.on = transform.rotate(self.on, self.rotate)
         self.off = transform.rotate(self.off, self.rotate)
+        self.assetdict["pressed"] = self.pressed,self.on, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed,self.off, self.setunpressed
+
     def Rotate(self):
         if self.rotate < 270:
             self.rotate = self.rotate+90
@@ -68,8 +81,10 @@ class TriggerAxis():
     horizontal = False
     rotate = 0
     actions = 0
+
     name = ""
     def __init__(self, x =-1, y = -1, axis = -1, controller=False , mode='axis', rotate = 0, name =""):
+            self.assetdict = {}
             self.x = x
             self.y = y
             self.ymod = -1
@@ -84,6 +99,23 @@ class TriggerAxis():
             self.load = self.loaddict[mode]
             self.rotate = rotate
             self.name = name
+            self.assetdict["pressed"] = self.pressed, self.pressedimage, self.setpressed
+            self.assetdict["unpressed"] = self.unpressed, self.unpressedimage, self.setunpressed
+            self.assetdict["bar"] = self.barimage, self.bar, self.setbar
+            self.assetdict["paddle"] = self.paddleimage, self.paddle, self.setpaddle
+
+    def setpressed(self,PATHNAME):
+        self.pressed = PATHNAME
+        self.load()
+    def setunpressed(self,PATHNAME):
+        self.unpressed = PATHNAME
+        self.load()
+    def setbar(self,PATHNAME):
+        self.barimage = PATHNAME
+        self.load()
+    def setpaddle(self,PATHNAME):
+        self.paddleimage = PATHNAME
+        self.load()
 
     def UpdateSelf(self):
         if self.controller.gamepad:
@@ -138,12 +170,16 @@ class TriggerAxis():
         if self.horizontal:
             self.bar = transform.rotate(self.bar, 90)
             self.paddle = transform.rotate(self.paddle, 90)
+        self.assetdict["bar"] = self.barimage, self.bar, self.setbar
+        self.assetdict["paddle"] = self.paddleimage, self.paddle, self.setpaddle
 
     def loadButtonMode(self):
         self.unpressedimage = image.load(self.unpressed)
         self.pressedimage = image.load(self.pressed)
         self.pressedimage = transform.rotate(self.pressedimage, self.rotate)
         self.unpressedimage = transform.rotate(self.unpressedimage, self.rotate)
+        self.assetdict["pressed"] = self.pressed, self.pressedimage, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.unpressedimage, self.setunpressed
 
     def Rotate(self):
        self.horizontal = not self.horizontal
@@ -165,6 +201,7 @@ class Stick():
     buttonname = ""
 
     def __init__(self, x, y, vertaxis = -1, horaxis = -1, buttonnum = -1, controller=False, stickname ="", buttonname = ""):
+        self.assetdict = {}
         self.x = x
         self.y = y
         self.vertaxis = vertaxis
@@ -182,6 +219,16 @@ class Stick():
         self.vertactive = False
         self.stickname = stickname
         self.buttonname = buttonname
+        self.assetdict["pressed"] = self.pressed, self.stickpressed, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.stickunpressed, self.setunpressed
+
+    def setpressed(self,PATHNAME):
+        self.pressed = PATHNAME
+        self.load()
+    def setunpressed(self,PATHNAME):
+        self.unpressed = PATHNAME
+        self.load()
+
     def UpdateSelf(self):
         if(self.buttonnum >= 0):
             if self.controller.gamepad:
@@ -245,6 +292,8 @@ class Stick():
         self.stickunpressed = image.load(self.unpressed)
         self.stickpressed = transform.rotate(self.stickpressed, self.rotate)
         self.stickunpressed = transform.rotate(self.stickunpressed, self.rotate)
+        self.assetdict["pressed"] = self.pressed, self.stickpressed, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.stickunpressed, self.setunpressed
 
     def Rotate(self):
         if self.rotate < 270:
@@ -301,7 +350,9 @@ class Hat():
     actions = 0
     name = ""
 
+
     def __init__(self, hatnum = -1, x = -1, y = -1, controller = False, name = ""):
+        self.assetdict = {}
         self.hatnumber = hatnum
         # x and y will be the top left coordinate for the background
         self.x = x
@@ -313,16 +364,19 @@ class Hat():
         self.state = (0,0)
         self.controller = controller
         self.name = name
+        self.assetdict["background"] = self.background, self.backgroundimage, self.setbackground
+        self.assetdict["pressed"] = self.pressed, self.pressedimage, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.unpressedimage, self.setunpressed
 
-    #if (self.buttonnum >= 0):
-       # if self.controller.gamepad:
-           # if self.buttonnum < self.controller.gamepad.get_numbuttons():
-              #  self.state = self.controller.gamepad.get_button(self.buttonnum)
-      #  else:
-           # self.state = 0
-  #  else:
-       # self.state == 0
-
+    def setpressed(self,PATHNAME):
+        self.pressed = PATHNAME
+        self.load()
+    def setunpressed(self,PATHNAME):
+        self.unpressed = PATHNAME
+        self.load()
+    def setbackground(self,PATHNAME):
+        self.background = PATHNAME
+        self.load()
 
     def UpdateSelf(self):
         action = False
@@ -384,5 +438,8 @@ class Hat():
         self.backgroundimage = transform.rotate(image.load(self.background), self.rotate)
         self.pressedimage = image.load(self.pressed)
         self.unpressedimage = image.load(self.unpressed)
+        self.assetdict["background"] = self.background, self.backgroundimage, self.setbackground
+        self.assetdict["pressed"] = self.pressed, self.pressedimage, self.setpressed
+        self.assetdict["unpressed"] = self.unpressed, self.unpressedimage, self.setunpressed
         self.updateImage()
 

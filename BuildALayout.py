@@ -83,8 +83,7 @@ class HoldingCell():
             directory = './buttons/'
             filelist = listdir(directory)
             for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory+file)
+                self.changelist.append(directory+file)
             self.buttonlist = ButtonModList
             buffer = 0
             for item in ButtonModList:
@@ -96,8 +95,7 @@ class HoldingCell():
             directory = './sticks/'
             filelist = listdir(directory)
             for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory+file)
+                self.changelist.append(directory+file)
             self.buttonlist = StickModList
             buffer = 0
             for item in StickModList:
@@ -109,8 +107,7 @@ class HoldingCell():
             directory = './Axis/'
             filelist = listdir(directory)
             for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory + file)
+                self.changelist.append(directory + file)
             self.buttonlist = AxisModList
             buffer = 0
             for item in AxisModList:
@@ -122,8 +119,7 @@ class HoldingCell():
             directory = './hats/'
             filelist = listdir(directory)
             for file in filelist:
-                if 'unpressed' in file:
-                    self.changelist.append(directory + file)
+                self.changelist.append(directory + file)
             self.buttonlist = HatModList
             buffer = 0
             for item in HatModList:
@@ -242,8 +238,6 @@ def load(filename = ""):
 
 def loadzip(filename = ""):
     return False
-
-
 
 def loadfile(filename = ""):
     if filename == "":
@@ -398,9 +392,9 @@ def LoadButtonDoClicked():
 
 def saveclicked(self):
     save("./layouts/"+self.text)
+
 def NewFileBoxClicked(self):
     return self
-
 
 def SaveButtonDoClicked():
     itemlist = filewindow.UpdateSelf("./layouts/",(position[0],position[1]),"save")
@@ -410,7 +404,6 @@ def SaveButtonDoClicked():
             item.clickdummy = saveclicked
         else:
             item.clickdummy = NewFileBoxClicked
-
 
     return itemlist
 
@@ -432,7 +425,6 @@ def reloadController():
         stick = LoadGenericController()
     return stick
 
-
 saveimage = pygame.image.load('assets/savebutton.png')
 loadimage = pygame.image.load('assets/loadbutton.png')
 makestickimage = pygame.image.load('assets/makestickbutton.png')
@@ -441,7 +433,6 @@ reloadimage = pygame.image.load('assets/reloadbutton.png')
 SaveButton = ClickableOptionButton((x + width)/2-(saveimage.get_rect().bottomright[0])/2,y + height + 20,saveimage)
 LoadButton = ClickableOptionButton(SaveButton.rect.x + 145, SaveButton.rect.y,loadimage)
 ReloadButton = ClickableOptionButton(0,0,reloadimage)
-
 
 MakeStickButton = ClickableOptionButton(SaveButton.rect.x +(LoadButton.rect.x - SaveButton.rect.x)/2,SaveButton.rect.y + 50, makestickimage)
 SaveButton.doclicked = SaveButtonDoClicked
@@ -453,6 +444,7 @@ collidables.append(SaveButton)
 collidables.append(LoadButton)
 collidables.append(ReloadButton)
 collidables.append(MakeStickButton)
+secondarybuttonmenulist = []
 
 def changeButtonImage():
     morph = widgetCell.holding
@@ -472,19 +464,86 @@ def changeButtonImage():
 
     stickcollidables()
 
-    ###if morph.__class__ == Stick:
-        #unpressed = morph.unpressed
-        #num = widgetCell.changelist.index(unpressed)
-        #if num + 1 < len(widgetCell.changelist):
-            #num = num+1
-        #else:
-            #num = 0
-        #unpressed = widgetCell.changelist[num]
-        #prunedex = unpressed.index("unpressed")
-        #pressed = unpressed[:prunedex] + unpressed[prunedex+2:]
-        #morph.pressed = pressed
-        #morph.unpressed = unpressed
-        #morph.load()###
+def ChangeAssetImageButtonDoClicked(self):
+    num = self.changelist.index(self.path)
+    if num + 1 < len(self.changelist):
+        num = num+1
+    else:
+        num = 0
+
+    newpath = self.changelist[num]
+    self.setter(newpath)
+    self.path = newpath
+    ChangeButtonDoClicked()
+
+
+def ChangeButtonDoClicked():
+    morph = widgetCell.holding
+        #grab image asset dict:
+            #image asset list should include:
+            #image asset path name
+            #image asset surface
+            #function for changing the path name
+    assets = morph.assetdict
+    ybuffer = y
+    xpos = changebutton.rect[0] + 140
+    buttonfont = pygame.font.Font('SuperMystery.ttf',12)
+    for item in secondarybuttonmenulist:
+        for thing in collidables:
+            if item == thing:
+                collidables.remove(item)
+    secondarybuttonmenulist.clear()
+
+    for asset in assets:
+        imgpath = str(assets[asset][0])
+        parse = imgpath.split('/')
+        folderpath = parse[0]
+        for i in range(1, len(parse)-1, 1):
+            folderpath = folderpath + "/"+ parse[i]
+        dirlist = listdir(folderpath)
+        for i in range(0,len(dirlist),1):
+            dirlist[i] = folderpath+'/'+dirlist[i]
+
+        widgetCell.changelist = dirlist
+
+        imgsurface = assets[asset][1]
+        changefunction = assets[asset][2]
+
+        ##MAKE BUTTON FOR CHANGING ASSET
+
+        text = buttonfont.render(str(asset),True,(75,75,30),(175,175,80))
+        textrect = text.get_rect()
+        imgrect = imgsurface.get_rect()
+        imgheight = imgrect.height
+        imgwidth = imgrect.width
+        textheight = textrect.height
+        textwidth = textrect.width
+
+        ybuffer = ybuffer - imgheight - 5
+        addrect = pygame.rect.Rect(xpos,ybuffer,imgwidth,imgheight)
+        imgbutton = FileBox(imgsurface,addrect, imgpath)
+        imgbutton.changelist = dirlist
+        imgbutton.path = imgpath
+        imgbutton.setter = changefunction
+        imgbutton.parent = morph
+
+        ybuffer = ybuffer - 2 - textheight
+        addrect = pygame.rect.Rect(xpos,ybuffer,textwidth,textheight)
+        button = FileBox(text,addrect, imgpath)
+        button.changelist = dirlist
+        button.path = imgpath
+        button.setter = changefunction
+        button.parent = morph
+
+        button.clickdummy = ChangeAssetImageButtonDoClicked
+        imgbutton.clickdummy = ChangeAssetImageButtonDoClicked
+
+        secondarybuttonmenulist.append(button)
+        secondarybuttonmenulist.append(imgbutton)
+    for item in secondarybuttonmenulist:
+        collidables.append(item)
+    stickcollidables()
+    return False
 
 def rotateButtonImage():
     morph = widgetCell.holding
@@ -492,8 +551,8 @@ def rotateButtonImage():
     stickcollidables()
 
 ChangeImage = pygame.image.load('assets/changebutton.png')
-changebutton = ClickableOptionButton(x+20, y-50, ChangeImage)
-changebutton.doclicked = changeButtonImage
+changebutton = ClickableOptionButton(x+20, y-ChangeImage.get_rect().height, ChangeImage)
+changebutton.doclicked = ChangeButtonDoClicked
 RotateImage = pygame.image.load('assets/rotatebutton.png')
 rotatebutton = ClickableOptionButton(x+40+135, y-50, RotateImage)
 rotatebutton.doclicked = rotateButtonImage
@@ -632,6 +691,7 @@ def changeMode():
 changeModeButton.doclicked = changeMode
 
 AxisModList = []
+AxisModList.append(changebutton)
 AxisModList.append(changeModeButton)
 AxisModList.append(rotatebutton)
 
@@ -749,6 +809,12 @@ while not done:
                 touch = CollisionCheck(position, item.rect)
                 if touch:
                     collided = item
+                    if item not in secondarybuttonmenulist:
+                        for item in secondarybuttonmenulist:
+                            for thing in collidables:
+                                if item == thing:
+                                    collidables.remove(thing)
+                        secondarybuttonmenulist.clear()
                     if collided.__class__ == ClickableOptionButton:
                         check = collided.doclicked()
                         if check.__class__ == GenericController or check.__class__ == LoadGenericController:
@@ -802,6 +868,11 @@ while not done:
             if touch == False:
                 widgetCell.holdItem(False)
                 widgetCell.update()
+                for item in secondarybuttonmenulist:
+                    for thing in collidables:
+                        if item == thing:
+                            collidables.remove(thing)
+                secondarybuttonmenulist.clear()
             if check.__class__ != dict:
                 for item in filewindow.itemdict:
                     for thing in collidables:
@@ -847,6 +918,8 @@ while not done:
     ReloadButton.draw(display)
     if widgetCell.holding:
         widgetCell.draw(display)
+    for item in secondarybuttonmenulist:
+        display.blit(item.textitem, item.rect)
 
     if ActiveStick:
         font = pygame.font.Font('SuperMystery.ttf', 24)
