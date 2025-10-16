@@ -31,6 +31,7 @@ class LoadGenericController():
             length = self.gamepad.get_numhats()
             for i in range(length):
                 self.hatdict[i] = Hat(i, 70, offset + i*95, self)
+                self.hatdict[i].setdefaults()
 
 
     def update(self):

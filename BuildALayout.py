@@ -7,6 +7,10 @@ from GenericController import LoadGenericController, GenericController
 from ClickableOptionButton import ClickableOptionButton
 from FileStuff import FileBox, FileWindow
 from zipfile import ZipFile
+import sys
+if getattr(sys, 'frozen', False):
+    import pyi_splash
+
 
 pygame.init()
 
@@ -357,10 +361,11 @@ def loadfile(filename = ""):
                 name = str(values[7])
 
             addhat = Hat(hatnum, xpos, ypos,False,name)
-            addhat.unpressed = offimage
-            addhat.pressed = onimage
+            addhat.defaultunpressed = offimage
+            addhat.defaultpressed = onimage
             addhat.background = backgroundimage
             addhat.rotate = rotation
+            addhat.setdefaults()
             addhat.load()
             hatdict[hatnum]=addhat
 
@@ -740,12 +745,16 @@ def stickcollidables():
             collidables.append(item)
 
     for item in ActiveStick.hatdict:
-        rectangle3 = ActiveStick.hatdict[item].backgroundimage.get_rect()
+        rectangle3 = ActiveStick.hatdict[item].assetdict['background'][1].get_rect()
         ActiveStick.hatdict[item].rect = rectangle3
         ActiveStick.hatdict[item].rect.x = ActiveStick.hatdict[item].x
         ActiveStick.hatdict[item].rect.y = ActiveStick.hatdict[item].y
         if ActiveStick.hatdict[item] not in collidables:
             collidables.append(ActiveStick.hatdict[item])
+
+
+if getattr(sys, 'frozen', False):
+    pyi_splash.close()
 
 while not done:
     for event in pygame.event.get():
@@ -939,4 +948,3 @@ while not done:
     clock.tick(60)
 
 pygame.quit()
-quit()

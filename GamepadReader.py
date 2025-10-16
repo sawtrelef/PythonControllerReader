@@ -7,7 +7,9 @@ from FileStuff import FileWindow, FileBox
 from os import listdir
 from zipfile import ZipFile
 from pygame import image, transform
-
+import sys
+if getattr(sys, 'frozen', False):
+    import pyi_splash
 
 
 pygame.init()
@@ -546,6 +548,10 @@ def CollisionCheck(mousepos, collisionbox):
 #controller = PlayStation5Controller(0)
 
 done = False
+
+if getattr(sys, 'frozen', False):
+    pyi_splash.close()
+
 while not done:
 
     eventlist = pygame.event.get()
@@ -622,4 +628,3 @@ while not done:
     clock.tick(60)
 
 pygame.quit()
-quit()
