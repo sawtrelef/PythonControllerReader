@@ -20,4 +20,4 @@ Number of Sticks: 2
 (1,0,8,81,91,./sticks/stickpressed.png,./sticks/stickunpressed.png,,)
 (3,2,9,245,135,./sticks/stickpressed.png,./sticks/stickunpressed.png,,)
 Number of Hats: 1
-(0,119,100,0,./hats/pressed.png,./hats/unpressed.png,./hats/hatbackground.png,)
+(0,119,100,0,./hats/smilepressed.png,./hats/smileunpressed.png,./hats/hatbackground.png,)
