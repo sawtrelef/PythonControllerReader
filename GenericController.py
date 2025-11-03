@@ -10,6 +10,7 @@ class LoadGenericController():
     ID = False
     actioncount = 0
     timecount = 0
+    background = False
     def __init__(self, joystick = False):
         self.gamepad = joystick
         self.buttondict = {}
@@ -56,6 +57,8 @@ class LoadGenericController():
         self.timecount = self.timecount+1
 
     def draw(self, WINDOW):
+        if self.background:
+            self.background.draw(WINDOW)
         for item in self.buttondict:
             self.buttondict[item].draw(WINDOW)
         for item in self.axisdict:

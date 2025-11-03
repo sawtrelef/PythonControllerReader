@@ -813,6 +813,10 @@ while not done:
             print("Button Pressed")
             if ActiveStick == False:
                 ActiveStick = LoadGenericController(joysticks[event.instance_id])
+                background = Background('./backgrounds/background.png')
+                background.rect.x = x
+                background.rect.y = y
+                ActiveStick.background = background
                 name = ActiveStick.gamepad.get_name()
                 stickcollidables()
                 words = ""
@@ -828,6 +832,10 @@ while not done:
                     text = font.render(words, True, (200, 74, 220))
                 else:
                     ActiveStick = LoadGenericController(joysticks[event.instance_id])
+                    background = Background('./backgrounds/background.png')
+                    background.rect.x = x
+                    background.rect.y = y
+                    ActiveStick.background = background
                     name = ActiveStick.gamepad.get_name()
                     stickcollidables()
                     words = ""
