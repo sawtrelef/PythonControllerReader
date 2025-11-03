@@ -17,7 +17,7 @@ pygame.init()
 font = pygame.font.Font('SuperMystery.ttf', 24)
 
 pygame.display.set_caption('Build Your Controller Layout')
-workrectimage = pygame.image.load('assets/Background.png')
+workrectimage = pygame.image.load('./assets/background.png')
 workrect = workrectimage.get_rect()
 width = workrect.width
 height = workrect.height
