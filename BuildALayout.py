@@ -2,10 +2,10 @@ import pygame
 from Actions import ModAction, ActionContainer
 from PS5Controller import PlayStation5Controller
 from os import listdir
-from joystickstuff import Button, Stick, TriggerAxis, Hat
+from joystickstuff import Button, Stick, TriggerAxis, Hat, Background
 from GenericController import LoadGenericController, GenericController
 from ClickableOptionButton import ClickableOptionButton
-from FileStuff import FileBox, FileWindow
+from FileStuff import FileBox, FileWindow, ColorBox
 from zipfile import ZipFile
 import sys
 if getattr(sys, 'frozen', False):
@@ -19,8 +19,8 @@ font = pygame.font.Font('SuperMystery.ttf', 24)
 pygame.display.set_caption('Build Your Controller Layout')
 workrectimage = pygame.image.load('assets/Background.png')
 workrect = workrectimage.get_rect()
-width = workrect.bottomright[0]
-height = workrect.bottomright[1]
+width = workrect.width
+height = workrect.height
 x = 150
 y = 350
 
@@ -130,6 +130,19 @@ class HoldingCell():
                 buffer = buffer + item.rect.height + 2
                 item.rect.x = x
                 item.rect.y = y - buffer
+
+        if self.holding.__class__ == Background:
+            self.changelist = []
+            directory = './backgrounds/'
+            filelist = listdir(directory)
+            for file in filelist:
+                self.changelist.append(directory + file)
+            self.buttonlist = BGModList
+            buffer = 0
+            for item in BGModList:
+                buffer = buffer + item.rect.height + 2
+                item.rect.x = x
+                item.rect.y = y - buffer
         templist = []
         for item in collidables:
             templist.append(item)
@@ -218,14 +231,21 @@ def save(filename = ""):
             number = str(hatdict[hat].hatnumber)
             xposition = str(hatdict[hat].x - x)
             yposition = str(hatdict[hat].y - y)
-            onimage = str(hatdict[hat].pressed)
-            offimage = str(hatdict[hat].unpressed)
+            onimage = str(hatdict[hat].defaultpressed)
+            offimage = str(hatdict[hat].defaultunpressed)
             backgroundimage = str(hatdict[hat].background)
             rotation = str(hatdict[hat].rotate)
             name = str(hatdict[hat].name)
             hattext = '({},{},{},{},{},{},{},{})\n'.format(number,xposition,yposition,rotation,onimage,offimage,backgroundimage,name)
             print(hattext)
             file.write(hattext)
+        print("Background Info:")
+        file.write("Background Info:\n")
+        bgpath = ActiveStick.background.path
+        bgcolor = ActiveStick.background.color
+        backgroundtext = '({},{})\n'.format(bgpath,bgcolor)
+        print(backgroundtext)
+        file.write(backgroundtext)
 
     else:
         print("nothing to save")
@@ -257,7 +277,7 @@ def loadfile(filename = ""):
     ## removes the newline character from the end of each line
     for i in range(length):
         lines[i] = lines[i].removesuffix('\n')
-        if lines[i][0] == 'N':
+        if lines[i][0] != '(':
             bookmarks.append(i)
 
     buttondict = {}
@@ -343,7 +363,7 @@ def loadfile(filename = ""):
             addstick.load()
             sticklist.append(addstick)
     hatdict = {}
-    for i in range(bookmarks[3], length):
+    for i in range(bookmarks[3], bookmarks[4]):
         if lines[i][0] == '(':
             # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
             lines[i] = lines[i].removeprefix('(')
@@ -369,6 +389,15 @@ def loadfile(filename = ""):
             addhat.load()
             hatdict[hatnum]=addhat
 
+    bgline = bookmarks[4] + 1
+    bgline = lines[bgline]
+    bgline = bgline.removeprefix('(')
+    bgline = bgline.removesuffix(')')
+    bgvalues = bgline.split(",")
+    background = Background(bgvalues[0],bgvalues[1])
+    background.rect.x = background.rect.x + x
+    background.rect.y = background.rect.y + y
+
     if ActiveStick:
         Controller = GenericController(ActiveStick.gamepad)
     else:
@@ -377,6 +406,7 @@ def loadfile(filename = ""):
     Controller.axisdict = axisdict
     Controller.sticklist = sticklist
     Controller.hatdict = hatdict
+    Controller.background = background
     file.close()
     Controller.resetListItems()
     if Controller:
@@ -703,6 +733,24 @@ AxisModList.append(rotatebutton)
 HatModList = []
 HatModList.append(changebutton)
 
+BGModList = []
+
+ChangeColorImage = pygame.image.load('assets/changecolorbutton.png')
+changecolorbutton = ClickableOptionButton(x+20, y-ChangeColorImage.get_rect().height, ChangeColorImage)
+def changecolorclicked():
+    colorbox = ColorBox()
+    colorbox.rect.x = changecolorbutton.rect.x + 5 + changecolorbutton.rect.width
+    colorbox.rect.y = changecolorbutton.rect.y
+    secondarybuttonmenulist.append(colorbox)
+    for item in secondarybuttonmenulist:
+        collidables.append(item)
+changecolorbutton.doclicked = changecolorclicked
+
+BGModList.append(changecolorbutton)
+
+
+
+
 def CollisionCheck(mousepos, collisionbox):
     mousex = mousepos[0]
     mousey = mousepos[1]
@@ -713,6 +761,7 @@ def CollisionCheck(mousepos, collisionbox):
     return False
 
 def stickcollidables():
+    collidables.append(ActiveStick.background)
     for item in ActiveStick.buttondict:
         rectangle = ActiveStick.buttondict[item].off.get_rect()
         ActiveStick.buttondict[item].rect = rectangle
@@ -864,6 +913,10 @@ while not done:
                             filewindow.state = True
                             widgetCell.holding = check
                             check.updatetext("")
+                    elif collided.__class__ == ColorBox:
+                        widgetCell.holding = collided
+                        collided.updatetext("")
+
                     elif currentAction.hasAction():
                         currentAction.setTrigger(collided)
                     elif widgetCell.holding == False or widgetCell.holding != collided:
@@ -901,6 +954,16 @@ while not done:
                 elif event.unicode == '\r':
                     save('./layouts/'+widgetCell.holding.text)
                     filewindow.state = False
+                    widgetCell.holding = False
+                else:
+                    widgetCell.holding.updatetext(widgetCell.holding.text + str(event.unicode))
+
+            if widgetCell.holding.__class__ == ColorBox:
+                if event.unicode == '\x08':
+                    widgetCell.holding.updatetext(widgetCell.holding.text[:-1])
+                elif event.unicode == '\r':
+                    ActiveStick.background.setColor(widgetCell.holding.text)
+                    widgetCell.holding = False
                 else:
                     widgetCell.holding.updatetext(widgetCell.holding.text + str(event.unicode))
 
@@ -920,9 +983,7 @@ while not done:
     display.blit(workrectimage, (x, y))
     SaveButton.draw(display)
     LoadButton.draw(display)
-    if filewindow.state:
-        filewindow.update()
-    filewindow.draw(display)
+
     MakeStickButton.draw(display)
     ReloadButton.draw(display)
     if widgetCell.holding:
@@ -937,6 +998,9 @@ while not done:
         ActiveStick.update()
         ActiveStick.draw(display)
 
+    if filewindow.state:
+        filewindow.update()
+    filewindow.draw(display)
 
     if currentAction.hasAction() != False:
         actiontext = currentAction.action.text

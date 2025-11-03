@@ -100,6 +100,7 @@ class GenericController():
     actioncount = 0
     timecount = 0
     gamepad = False
+    background = False
     def __init__(self,joystick = False, ID = -1):
         offset = 0
         self.ID = ID
@@ -127,6 +128,8 @@ class GenericController():
         self.timecount = self.timecount + 1
 
     def draw(self, WINDOW):
+        if self.background:
+            self.background.draw(WINDOW)
         for item in self.buttondict:
             self.buttondict[item].draw(WINDOW)
         for item in self.axisdict:

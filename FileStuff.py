@@ -4,6 +4,35 @@ from pygame import draw, font
 font.init()
 FONT = font.Font('SuperMystery.ttf', 11)
 
+class ColorBox():
+    rect = False
+    textitem = False
+    text = ""
+
+
+    def __init__(self):
+
+        self.text = "#rrggbb"
+        self.textitem = FONT.render(self.text, True,(75,200,200))
+        self.rect = self.textitem.get_rect()
+
+
+
+    ##THIS IS ABSOLUTELY GENIUS RIGHT HERE
+    ##I DON'T KNOW THE OFFICIAL NAME OF THIS PATTERN
+    ##I'M CALLING IT THE DOUBLE DUMMY PATTERN
+
+    def doclicked(self):
+        return self
+
+    def updatetext(self, new):
+        self.text = new
+        self.textitem = FONT.render(self.text,True,(75,200,200))
+        rect = self.textitem.get_rect()
+        rect.x = self.rect.x
+        rect.y = self.rect.y
+        self.rect = rect
+
 class FileBox():
     rect = False
     textitem = False

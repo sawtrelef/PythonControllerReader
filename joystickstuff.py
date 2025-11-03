@@ -1,7 +1,25 @@
 import pygame.image
-from pygame import image, transform
+from pygame import image, transform, draw, color
 import os
 os.environ['SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS'] = '1'
+
+class Background():
+    def __init__(self, bgpath = "", bgcolor = ""):
+        self.path = bgpath
+        self.image = image.load(self.path)
+        self.rect = self.image.get_rect()
+        if bgcolor == "":
+            bgcolor = "#ffffff"
+        self.color = bgcolor
+
+    def setColor(self, colorkey):
+        self.color = colorkey
+
+    def draw(self,WINDOW):
+        draw.rect(WINDOW, color.Color(self.color),self.rect)
+        WINDOW.blit(self.image,self.rect)
+
+
 
 class Button():
     unpressed = "./buttons/unpressed.png"
@@ -364,9 +382,9 @@ class Hat():
     name = ""
     directions = {(0,0):"center",(0,1):"N",(0,-1):"S",(1,0):"E",(1,-1):"SE",(1,1):"NE",(-1,0):"W",(-1,1):"NW",(-1,-1):"SW"}
 
-
     def __init__(self, hatnum = -1, x = -1, y = -1, controller = False, name = "", mode = "hat"):
         self.assetdict = {}
+        self.ModeDict = {}
         self.hatnumber = hatnum
         # x and y will be the top left coordinate for the background
         self.x = x
@@ -375,25 +393,48 @@ class Hat():
         self.controller = controller
         self.name = name
         self.mode = mode
-        self.setlist = [
-            self.setcenter,self.setbackground,
+        self.HatModeSetList = [
+            self.setcenter, self.setbackground,
+            self.setNPressed,
+            self.setNEPressed,
+            self.setNWPressed,
+            self.setSPressed,
+            self.setSWPressed,
+            self.setSEPressed,
+            self.setEPressed,
+            self.setWPressed
+        ]
+        self.QuadModeSetList = [
+            self.setNPressed, self.setNUnpressed,
+            self.setSPressed, self.setSUnpressed,
+            self.setEPressed, self.setEUnpressed,
+            self.setWPressed, self.setWUnpressed
+        ]
+        self.OctoModeSetList = [
             self.setNPressed, self.setNUnpressed,
             self.setNEPressed, self.setNEUnpressed,
             self.setNWPressed, self.setNWUnpressed,
             self.setSPressed, self.setSUnpressed,
-            self.setSWPressed,self.setSWUnpressed,
+            self.setSWPressed, self.setSWUnpressed,
             self.setSEPressed, self.setSEUnpressed,
             self.setEPressed, self.setEUnpressed,
             self.setWPressed, self.setWUnpressed
         ]
+        self.ModeDict['hat'] = self.HatModeSetList, self.updateHatImage, self.drawHatMode
+        #self.ModeDict['quad'] = self.QuadModeSetList, self.updateQuadImage, self.drawQuadMode
+        #self.ModeDict['octo'] = self.OctoModeSetList, self.updateOctoImage, self.drawOctoMode
+        self.setlist = self.ModeDict[self.mode][0]
+        self.updateImage = self.ModeDict[self.mode][1]
+        self.draw = self.ModeDict[self.mode][2]
+        self.setdefaults()
 
 
     def setdefaults(self):
+        del self.assetdict
+        self.assetdict = {}
         for item in self.setlist:
             item()
         self.load()
-
-
 
     def setcenter(self,PATHNAME = ''):
         if PATHNAME == '':
@@ -490,6 +531,17 @@ class Hat():
             PATHNAME = self.defaultunpressed
         self.assetdict["SEunpressed"] = PATHNAME, image.load(PATHNAME), self.setSEUnpressed
 
+    def changeMode(self, mode):
+        #self.ModeDict['hat'] = self.HatModeSetList, self.updateHatImage(), self.drawHatMode()
+        #self.ModeDict['quad'] = self.QuadModeSetList, self.updateQuadImage(), self.drawQuadMode()
+        #self.ModeDict['octo'] = self.OctoModeSetList, self.updateOctoImage(), self.drawOctoMode()
+        self.mode = mode
+        self.draw = self.ModeDict[self.mode][2]
+        self.updateImage = self.ModeDict[self.mode][1]
+        self.setlist = self.ModeDict[self.mode][0]
+        self.setdefaults()
+        self.load()
+        return
 
     def UpdateSelf(self):
         action = False
@@ -505,7 +557,7 @@ class Hat():
                     else:
                         self.state = (0,0)
         else:
-            self.state == (0,0)
+            self.state = (0,0)
 
         self.updateImage()
         return action
@@ -548,9 +600,34 @@ class Hat():
             self.imagey = (-ystate * staterecty) - staterecty / 2 + backgroundrecty / 2 + self.y
         self.stateimage = transform.rotate(self.stateimage, self.rotate+self.rotatemod)
 
+    def updateQuadImage(self):
+    #self.assetdict["SEunpressed"] = PATHNAME, image.load(PATHNAME), self.setSEUnpressed
+    #self.assetdict = {
+    #       Npressed, Nunpressed,
+    #       Spressed, Sunpressed,
+    #       Epressed, Eunpressed,
+
+    #       Wpressed, Wunpressed
+    #   }
+
+    #self.assetdict["North"] (PATHNAME, image.load(PATHNAME, self.NorthPressed)
+
+        xstate = self.state[0]
+        ystate = self.state[1]
+        #if xstate == -1:
+
+
+
     def draw(self,WINDOW):
+        self.drawHatMode(WINDOW)
+        return
+
+    def drawHatMode(self,WINDOW):
         WINDOW.blit(self.assetdict['background'][1], (self.x, self.y))
         WINDOW.blit(self.stateimage, (self.imagex, self.imagey))
+
+    def drawQuadMode(self,WINDOW):
+        WINDOW.blit()
 
     def load(self):
         for item in self.assetdict:
@@ -558,6 +635,7 @@ class Hat():
         self.updateImage()
 
     def ModeAdjust(self):
-        self.draw = self.drawdict[self.mode]
-        self.load = self.loaddict[self.mode]
+        self.setlist = self.ModeDict[self.mode][0]
+        self.updateImage = self.ModeDict[self.mode][1]
+        self.draw = self.ModeDict[self.mode][2]
 

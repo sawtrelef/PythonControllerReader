@@ -1,6 +1,6 @@
 import pygame
 from PS5Controller import PlayStation5Controller
-from joystickstuff import Button, TriggerAxis, Stick, Hat
+from joystickstuff import Button, TriggerAxis, Stick, Hat, Background
 from GenericController import GenericController
 from ClickableOptionButton import ClickableOptionButton
 from FileStuff import FileWindow, FileBox
@@ -83,7 +83,7 @@ def loadzip(filename = ""):
             ## removes the newline character from the end of each line
             for i in range(length):
                 lines[i] = lines[i].decode().removesuffix('\r\n')
-                if lines[i][0] == 'N':
+                if lines[i][0] != '(':
                     bookmarks.append(i)
             buttondict = {}
             for i in range(bookmarks[0], bookmarks[1]):
@@ -215,7 +215,7 @@ def loadzip(filename = ""):
                     # addstick.load()
                     sticklist.append(addstick)
             hatdict = {}
-            for i in range(bookmarks[3], length):
+            for i in range(bookmarks[3], bookmarks[4]):
                 if lines[i][0] == '(':
                     # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
                     lines[i] = lines[i].removeprefix('(')
@@ -257,6 +257,15 @@ def loadzip(filename = ""):
                     # addhat.load()
                     hatdict[hatnum] = addhat
 
+            bgline = bookmarks[4] + 1
+            bgline = lines[bgline]
+            bgline = bgline.removeprefix('(')
+            bgline = bgline.removesuffix(')')
+            bgvalues = bgline.split(",")
+            background = Background(bgvalues[0], bgvalues[1])
+            background.rect.x = background.rect.x + x
+            background.rect.y = background.rect.y + y
+
             if controller:
                 Controller = GenericController(controller.gamepad)
             else:
@@ -268,6 +277,7 @@ def loadzip(filename = ""):
             Controller.axisdict = axisdict
             Controller.sticklist = sticklist
             Controller.hatdict = hatdict
+            Controller.background = background
             Controller.resetListItems()
     return Controller
 
@@ -284,7 +294,7 @@ def loadfile(filename = ""):
     ## removes the newline character from the end of each line
     for i in range(length):
         lines[i] = lines[i].removesuffix('\n')
-        if lines[i][0] == 'N':
+        if lines[i][0] != '(':
             bookmarks.append(i)
 
     buttondict = {}
@@ -370,7 +380,7 @@ def loadfile(filename = ""):
             addstick.load()
             sticklist.append(addstick)
     hatdict = {}
-    for i in range(bookmarks[3], length):
+    for i in range(bookmarks[3], bookmarks[4]):
         if lines[i][0] == '(':
             # (number,xposition,yposition,rotation,onimage,offimage,backgroundimage)
             lines[i] = lines[i].removeprefix('(')
@@ -395,6 +405,13 @@ def loadfile(filename = ""):
             addhat.load()
             hatdict[hatnum] = addhat
 
+    bgline = bookmarks[4] + 1
+    bgline = lines[bgline]
+    bgline = bgline.removeprefix('(')
+    bgline = bgline.removesuffix(')')
+    bgvalues = bgline.split(",")
+    background = Background(bgvalues[0], bgvalues[1])
+
     if controller:
         Controller = GenericController(controller.gamepad)
     else:
@@ -406,6 +423,7 @@ def loadfile(filename = ""):
     Controller.axisdict = axisdict
     Controller.sticklist = sticklist
     Controller.hatdict = hatdict
+    Controller.background = background
     file.close()
     Controller.resetListItems()
     if Controller:
