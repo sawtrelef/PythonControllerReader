@@ -219,6 +219,14 @@ class TriggerAxis():
         self.draw = self.modedict[self.mode]
         self.load = self.loaddict[self.mode]
 
+    def HorizontalFlip(self):
+        pressedtemp = self.pressedimage
+        unpressedtemp = self.unpressedimage
+        pressedtemp = transform.flip(pressedtemp, True, False)
+        unpressedtemp = transform.flip(unpressedtemp, True, False)
+        self.pressedimage = pressedtemp
+        self.unpressedimage = unpressedtemp
+
 class Stick():
     pressed = "./sticks/stickpressed.png"
     unpressed = "./sticks/stickunpressed.png"

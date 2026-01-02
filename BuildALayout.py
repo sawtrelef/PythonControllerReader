@@ -17,7 +17,7 @@ pygame.init()
 font = pygame.font.Font('SuperMystery.ttf', 24)
 
 pygame.display.set_caption('Build Your Controller Layout')
-workrectimage = pygame.image.load('./assets/background.png')
+workrectimage = pygame.image.load('./backgrounds/background.png')
 workrect = workrectimage.get_rect()
 width = workrect.width
 height = workrect.height
@@ -761,7 +761,10 @@ def CollisionCheck(mousepos, collisionbox):
     return False
 
 def stickcollidables():
-    collidables.append(ActiveStick.background)
+    if ActiveStick.background in collidables:
+        collidables.remove(ActiveStick.background)
+    collidables.insert(0,ActiveStick.background)
+
     for item in ActiveStick.buttondict:
         rectangle = ActiveStick.buttondict[item].off.get_rect()
         ActiveStick.buttondict[item].rect = rectangle
@@ -800,6 +803,9 @@ def stickcollidables():
         ActiveStick.hatdict[item].rect.y = ActiveStick.hatdict[item].y
         if ActiveStick.hatdict[item] not in collidables:
             collidables.append(ActiveStick.hatdict[item])
+
+
+
 
 
 if getattr(sys, 'frozen', False):

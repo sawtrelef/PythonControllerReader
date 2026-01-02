@@ -1,0 +1,25 @@
+Number of Independent buttons: 15
+(0,592,202,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,180,)
+(1,656,131,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,270,)
+(2,550,132,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,90,)
+(3,593,95,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,0,)
+(4,222,76,./buttons/pressedoption.png,./buttons/unpressedoption.png,0,)
+(5,-110,-150,./buttons/unpressed.png,./buttons/pressed.png,0,)
+(6,534,72,./buttons/pressedoption.png,./buttons/unpressedoption.png,0,)
+(9,161,8,./buttons/HKBean.png,./buttons/HKWhite.png,270,)
+(10,520,7,./buttons/HKBeanRight.png,./buttons/HKWhiteRight.png,90,)
+(11,129,100,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,0,)
+(12,130,215,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,180,)
+(13,98,143,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,90,)
+(14,192,141,./buttons/HKHelmet.png,./buttons/HKHelmetCracked.png,270,)
+(15,350,69,./buttons/HKCross.png,./buttons/HKCrossLit.png,0,)
+(16,391,265,./buttons/pressedoption.png,./buttons/unpressedoption.png,90,)
+Number of Independent Axis: 2
+(4,75,73,./Axis/triggerbar.png,./Axis/paddlebar.png,True,button,0,,./Axis/buttons/HKWhite.png,./Axis/buttons/HKBean.png)
+(5,636,79,./Axis/triggerbar.png,./Axis/paddlebar.png,True,button,0,,./Axis/buttons/HKWhiteRight.png,./Axis/buttons/HKBeanRight.png)
+Number of Sticks: 2
+(1,0,7,311,125,./sticks/HKStickPress.png,./sticks/HKStick.png,,)
+(3,2,8,474,122,./sticks/HKStickPressright.png,./sticks/HKStickright.png,,)
+Number of Hats: 0
+Background Info:
+(./backgrounds/background.png,#00FF00)

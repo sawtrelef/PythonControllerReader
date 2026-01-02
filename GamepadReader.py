@@ -17,12 +17,12 @@ joysticks = {}
 for i in range (pygame.joystick.get_count()):
     joysticks[i] = pygame.joystick.Joystick(i)
 font = pygame.font.Font('SuperMystery.ttf', 32)
-background = pygame.image.load("assets/Background.png")
+background = pygame.image.load("backgrounds/background.png")
 rect = background.get_rect()
 x = int(rect.bottomright[0])
 y = int(rect.bottomright[1])
 pygame.display.set_caption('Controller Input Visualizer')
-display = pygame.display.set_mode((x,y+24))
+display = pygame.display.set_mode((x,y+24),pygame.RESIZABLE)
 clock = pygame.time.Clock()
 filewindow = FileWindow()
 
@@ -66,10 +66,16 @@ class APMCounter():
 
 controller = False
 def load(filename = ""):
+
     if filename[-4:] == '.zip':
-        return loadzip(filename)
+        tempcontroller = loadzip(filename)
     else:
-        return loadfile(filename)
+        tempcontroller = loadfile(filename)
+
+    temprect = tempcontroller.background.rect
+
+    return tempcontroller
+
 
 def loadzip(filename = ""):
     Controller = False
@@ -631,6 +637,19 @@ while not done:
                         words = "PRESS BUTTON"
                         text = font.render(words, True, (200, 74, 220))
             del joysticks[joy]
+        if event.type == pygame.VIDEORESIZE:
+            x,y = event.dict['size']
+            y = y+ResetButton.rect.height
+            display = pygame.display.set_mode((x,y),pygame.RESIZABLE)
+            y = y-ResetButton.rect.height
+            ResetButton.rect.x = 1
+            ResetButton.rect.y = y
+
+            ResetButton.rect.x + loadrect.width + 1
+            LoadButton.rect.y = ResetButton.rect.y
+            LoadButton.rect.x = ResetButton.rect.x + loadrect.width + 1
+            LineToggleButton.rect.x, LineToggleButton.rect.y = x-linerect.width, y
+            LogButton.rect.x, LogButton.rect.y = LoadButton.rect.x+LoadButton.rect.width, y
     if done:
 
         break
